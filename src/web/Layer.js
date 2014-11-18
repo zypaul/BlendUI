@@ -178,14 +178,10 @@ define(
             // me.onshow2 = me.onshow;
             me.on('onshow',function(event){
 
-                // me.onshow && me.onshow(event);
-                //更新active page , 在 swipe api中，同样需要更新
-                blend.activeLayer = $(me.main);
-
                 
                 me.stopLoading();
 
-                // //更新active page , 在 swipe api中，同样需要更新
+                //更新active page , 在 swipe api中，同样需要更新
                 blend.activeLayer = $(me.main);
 
                 //这里的逻辑可能比较难以理解
@@ -208,13 +204,7 @@ define(
                     layerApi.stopPullRefresh(me);
                     me.on('layerPullDown',me.ptrFn);
                 }
-                // me.ptrFn  &&  me.off('layerPullDown');
-                // me.off('onrender',me.onrender);
-                // me.off('onload',me.onload);
-                // // me.off('in',me.beforeshow);
-                // me.off('out',me.beforehide);
-                // me.off('beforeshow',me.beforeshow);
-                // me.off('onshow',me.onshow);
+                
             });
         };
 

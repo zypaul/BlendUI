@@ -225,8 +225,8 @@ define(
                     isMoved = false;
                     return false;
                 }
-                if ($(".page-content:last").scrollTop <= 5) {//原生滚动条回弹问题
-                    $(".page-content:last").scrollTop(0);
+                if (container.scrollTop <= 5) {//原生滚动条回弹问题
+                    container.scrollTop(0);
                 }
                 container.addClass('transitioning');
                 // container.css("webkitTransform",'');

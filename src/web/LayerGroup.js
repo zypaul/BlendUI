@@ -19,7 +19,7 @@ define(function(require) {
     var layerApi = require('./layer/layerapi');
 
     var layer = require('./Layer.js');
-    var lowerAnimate = $("html").hasClass("android");
+    var lowerAnimate = false;//$("html").hasClass("android");
 
 
     /**
@@ -52,6 +52,9 @@ define(function(require) {
      * @param {string} [options.left=0] layerGroup距离屏幕left的坐标
      * @param {string} [options.width] layer像素宽度，默认全屏
      * @param {string} [options.height] layer像素高度，默认全屏
+     *
+     * @param {string} [options.layerAnimate] **web only** layer切换动画,emun['page-slide','page-fade','none'],默认slide
+     * @param {string} [options.enableSwipe] **web only** swipe切换页面,默认true
      *
      * @param {Function} [options.beforerender] webview容器render开始前的回调
      * @param {Function} [options.onrender] webview容器render成功的回调
@@ -89,7 +92,7 @@ define(function(require) {
      *
      * @cfg {number} index
      */
-    LayerGroup.prototype.index = 0;//TODO 优化：与 blend.activeLayer 与 本函数内部的 this.activeId  重复
+    LayerGroup.prototype.index = 0;
 
     /**
      * @private
@@ -157,7 +160,15 @@ define(function(require) {
     var eventsFunction = {};
     LayerGroup.prototype._initEvent = function() {
         
-        this.initSwipe();
+        if (this.enableSwipe !== false){
+            this.initSwipe();
+        }
+        
+        if ( this.layerAnimate === 'none') {
+            lowerAnimate = true;
+        }else if (this.layerAnimate){
+            $(this.main).addClass(this.layerAnimate);
+        }
 
         return null;
 
@@ -184,48 +195,24 @@ define(function(require) {
         // var me.__layers = [];
         var showfunction = function(event) {
             var layerid = event.detail;
-            // me.fire("groupSelected",layerid);
-            //同时，需要判断当前的active 
-
-            // me.activeId = layerid;
-
-            // console.log("group me.activeId active id"+me.activeId);
-
-
-            // console.log(layerid);
+           
             me._layers[layerid].beforeshow2 && me._layers[layerid].beforeshow2(event);
 
         };
         for (var id in this._layers) {
 
-            // me._layers[id].top = me.top;
-            // me._layers[id].left = me.left;
-            // me._layers[id].right = me.right;
-            // me._layers[id].bottom = me.bottom;
-
             this._layers[id].myGroup = this;
 
-
-            //after render should fire
-            // tmp = me._layers[id].onrender;
-            // me._layers[id].onrender = function(event){
-            //     // console.log("after render" + data);
-            //     // me.fire()
-            //     //fill with data
-            //     var layerid = event.detail;
-            //     // console.log(me.main);
-            //     // me.__layers[id].main;
-
-            //     $("#"+me.__layers[layerid].main.id,me.main).html(me.__layers[layerid].main.innerHTML);
-
-            //     tmp && tmp(event);
-            // };
             me._layers[id].beforeshow2 = me._layers[id].beforeshow;
             me._layers[id].beforeshow = showfunction;
 
             if (me.onshow) {
 
                 me._layers[id].onshow = me.onshow;
+            }
+            if (me.beforeshow) {
+
+                me._layers[id].beforeshow = me.beforeshow;
             }
             if (me.onrender) {
 
@@ -285,11 +272,7 @@ define(function(require) {
 
     LayerGroup.prototype.getIdByStep = function(step) {//startid
         this.index = this.idtoindex(this.activeId);
-        // console.log('next ' + this.index);
-        // if (this.index + step > this.layers.length || this.index + step < 0) {
-        //     return this.activeId;//定义边界
-        // }
-
+        
         return this.indextoid(this.index + step);
     };
 
@@ -395,7 +378,7 @@ define(function(require) {
             me.fire('onhide');
             //TODO add layer onhide events
       
-            blend.activeLayer = parentlayer;
+            // blend.activeLayer = parentlayer; //layergroup 不涉及activelayer，它只是layer的一部分
 
         };
         //出场动画结束
