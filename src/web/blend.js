@@ -1,4 +1,4 @@
-define(["require",'./../common/lib',"./configs","./events",'../../usecase/js/lib/jquery-2.1.1.js','./api'],
+define(["require",'./../common/lib',"./configs","./events",'../../usecase/js/lib/zepto.js','./api'],
     function(require) {
         var lib = require('./../common/lib');
         var configs = require('./configs');
@@ -112,6 +112,16 @@ define(["require",'./../common/lib',"./configs","./events",'../../usecase/js/lib
          */
         blend.getConfig = function(name) {
             return config[name];
+        };
+
+        /**
+         * 获取currentLayerid
+         *
+         * @property {String} name
+         */
+        
+        blend.getLayerId = function(){
+            return Blend.ui.activeLayer.attr("data-blend-id");
         };
 
         /**
