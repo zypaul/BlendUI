@@ -17,7 +17,7 @@ define(
         
         var layerApi = require('./layer/layerapi');
 
-        var lowerAnimate = $("html").hasClass("android");
+        var lowerAnimate = false;//$("html").hasClass("android");
 
         var loader = require('../common/loader');
 
@@ -34,6 +34,7 @@ define(
          * @param {String} [options.width] layer像素宽度，默认全屏
          * @param {String} [options.height] layer像素高度，默认全屏
          * @param {boolean} [options.active] 是否立即激活
+         * @param {boolean} [options.autoload] 是否预加载
          *
          * @param {boolean} [options.reverse] =true 动画是否反向
          * @param {String} [options.fx] ="none" 无动画
@@ -122,7 +123,9 @@ define(
                 console.log("###No url for render###");
                 // return false;
             }else{
-                this.render();
+                if ( this.autoload ) {
+                    this.render();
+                }
             }
             
 
@@ -150,6 +153,13 @@ define(
         Layer.prototype._initEvent = function  () {
             var me = this;
             // var cancelTime = null;
+
+            if ( this.layerAnimate === 'none') {
+                lowerAnimate = true;
+            }else if (this.layerAnimate){
+                $(this.main).addClass(this.layerAnimate);
+            }
+
             
             //native 下 layer 的载入和载出会触发in 和 out 事件 
             //web 下 layer的载入和 载出 均是 触发 自定义事件，自定义事件的this 是 Layer实例 （事件名相同： in out）
@@ -268,6 +278,10 @@ define(
                 console.log('layer is already activity ');
                 return ;
             }
+            // 判断是否render了,autoload的会自动render，否则不会
+            if (!this.hasState("got") && !this.hasState("get")) {// ['','get','got']
+                this.render();//auto has get state
+            }
 
             // this.fire("changeUrl",this.id);
             
@@ -275,16 +289,19 @@ define(
             layerApi.resume(this);
             var me = this;
             if(this.hasState("get")) {
-                //排队，理论上说这里不应该会被执行，因为
-                //取页面模板时，不会加state
+                //排队，
+                //取页面模板时，会加state
                 me.once("onrender",function(){
+                    me.removeState("get");
+                    me.addState("got");
                     me.in.call(me);
+                    
                 });
                 // setTimeout(function(){
                     
                 // },100);
                 
-                console.warn(" cant' move in. it has state... get");
+                console.log("waiting for the template load... cant' move in now. it has state... get");
                 return ;
             }
             // state
@@ -342,7 +359,9 @@ define(
                 //1. 找到当前page，然后动画走掉
                 layerout.removeClass("page-on-center").addClass("page-from-center-to-"+layerOutPosition);
                 //2. 滑入新page
-                layerin.removeClass('page-on-'+layerOutPosition).addClass('page-on-'+layerInPosition).addClass('page-from-'+layerInPosition+'-to-center');
+                // layerin.removeClass('page-on-'+layerOutPosition).addClass('page-on-'+layerInPosition).addClass('page-from-'+layerInPosition+'-to-center');
+                layerin.removeClass('page-on-right').removeClass('page-on-left').addClass('page-from-'+layerInPosition+'-to-center');
+            
             }
             
             me.fire("beforeshow");

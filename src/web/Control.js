@@ -113,6 +113,8 @@ define(
             render: function() {
                 //created, webviewready, pageonload, disposed
                 
+                this.addState("get");//会在render后变成got
+                
                 this.fire('beforerender', this.id);
 
                 // 为控件主元素添加id

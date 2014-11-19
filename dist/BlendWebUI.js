@@ -2755,6 +2755,8 @@ define(
             render: function() {
                 //created, webviewready, pageonload, disposed
                 
+                this.addState("get");//会在render后变成got
+                
                 this.fire('beforerender', this.id);
 
                 // 为控件主元素添加id
@@ -4119,8 +4121,8 @@ define(
                     isMoved = false;
                     return false;
                 }
-                if ($(".page-content:last").scrollTop <= 5) {//原生滚动条回弹问题
-                    $(".page-content:last").scrollTop(0);
+                if (container.scrollTop <= 5) {//原生滚动条回弹问题
+                    container.scrollTop(0);
                 }
                 container.addClass('transitioning');
                 // container.css("webkitTransform",'');
@@ -4457,7 +4459,7 @@ define(
         
         var layerApi = require('./layer/layerapi');
 
-        var lowerAnimate = $("html").hasClass("android");
+        var lowerAnimate = false;//$("html").hasClass("android");
 
         var loader = require('../common/loader');
 
@@ -4474,6 +4476,7 @@ define(
          * @param {String} [options.width] layer像素宽度，默认全屏
          * @param {String} [options.height] layer像素高度，默认全屏
          * @param {boolean} [options.active] 是否立即激活
+         * @param {boolean} [options.autoload] 是否预加载
          *
          * @param {boolean} [options.reverse] =true 动画是否反向
          * @param {String} [options.fx] ="none" 无动画
@@ -4562,7 +4565,9 @@ define(
                 console.log("###No url for render###");
                 // return false;
             }else{
-                this.render();
+                if ( this.autoload ) {
+                    this.render();
+                }
             }
             
 
@@ -4590,6 +4595,13 @@ define(
         Layer.prototype._initEvent = function  () {
             var me = this;
             // var cancelTime = null;
+
+            if ( this.layerAnimate === 'none') {
+                lowerAnimate = true;
+            }else if (this.layerAnimate){
+                $(this.main).addClass(this.layerAnimate);
+            }
+
             
             //native 下 layer 的载入和载出会触发in 和 out 事件 
             //web 下 layer的载入和 载出 均是 触发 自定义事件，自定义事件的this 是 Layer实例 （事件名相同： in out）
@@ -4618,14 +4630,10 @@ define(
             // me.onshow2 = me.onshow;
             me.on('onshow',function(event){
 
-                // me.onshow && me.onshow(event);
-                //更新active page , 在 swipe api中，同样需要更新
-                blend.activeLayer = $(me.main);
-
                 
                 me.stopLoading();
 
-                // //更新active page , 在 swipe api中，同样需要更新
+                //更新active page , 在 swipe api中，同样需要更新
                 blend.activeLayer = $(me.main);
 
                 //这里的逻辑可能比较难以理解
@@ -4648,13 +4656,7 @@ define(
                     layerApi.stopPullRefresh(me);
                     me.on('layerPullDown',me.ptrFn);
                 }
-                // me.ptrFn  &&  me.off('layerPullDown');
-                // me.off('onrender',me.onrender);
-                // me.off('onload',me.onload);
-                // // me.off('in',me.beforeshow);
-                // me.off('out',me.beforehide);
-                // me.off('beforeshow',me.beforeshow);
-                // me.off('onshow',me.onshow);
+                
             });
         };
 
@@ -4718,6 +4720,10 @@ define(
                 console.log('layer is already activity ');
                 return ;
             }
+            // 判断是否render了,autoload的会自动render，否则不会
+            if (!this.hasState("got") && !this.hasState("get")) {// ['','get','got']
+                this.render();//auto has get state
+            }
 
             // this.fire("changeUrl",this.id);
             
@@ -4725,16 +4731,19 @@ define(
             layerApi.resume(this);
             var me = this;
             if(this.hasState("get")) {
-                //排队，理论上说这里不应该会被执行，因为
-                //取页面模板时，不会加state
+                //排队，
+                //取页面模板时，会加state
                 me.once("onrender",function(){
+                    me.removeState("get");
+                    me.addState("got");
                     me.in.call(me);
+                    
                 });
                 // setTimeout(function(){
                     
                 // },100);
                 
-                console.warn(" cant' move in. it has state... get");
+                console.log("waiting for the template load... cant' move in now. it has state... get");
                 return ;
             }
             // state
@@ -4792,7 +4801,9 @@ define(
                 //1. 找到当前page，然后动画走掉
                 layerout.removeClass("page-on-center").addClass("page-from-center-to-"+layerOutPosition);
                 //2. 滑入新page
-                layerin.removeClass('page-on-'+layerOutPosition).addClass('page-on-'+layerInPosition).addClass('page-from-'+layerInPosition+'-to-center');
+                // layerin.removeClass('page-on-'+layerOutPosition).addClass('page-on-'+layerInPosition).addClass('page-from-'+layerInPosition+'-to-center');
+                layerin.removeClass('page-on-right').removeClass('page-on-left').addClass('page-from-'+layerInPosition+'-to-center');
+            
             }
             
             me.fire("beforeshow");
@@ -5175,7 +5186,7 @@ define('src/web/LayerGroup.js',['require','./blend','../common/lib','./WebContro
     var layerApi = require('./layer/layerapi');
 
     var layer = require('./Layer.js');
-    var lowerAnimate = $("html").hasClass("android");
+    var lowerAnimate = false;//$("html").hasClass("android");
 
 
     /**
@@ -5208,6 +5219,9 @@ define('src/web/LayerGroup.js',['require','./blend','../common/lib','./WebContro
      * @param {string} [options.left=0] layerGroup距离屏幕left的坐标
      * @param {string} [options.width] layer像素宽度，默认全屏
      * @param {string} [options.height] layer像素高度，默认全屏
+     *
+     * @param {string} [options.layerAnimate] **web only** layer切换动画,emun['page-slide','page-fade','none'],默认slide
+     * @param {string} [options.enableSwipe] **web only** swipe切换页面,默认true
      *
      * @param {Function} [options.beforerender] webview容器render开始前的回调
      * @param {Function} [options.onrender] webview容器render成功的回调
@@ -5245,7 +5259,7 @@ define('src/web/LayerGroup.js',['require','./blend','../common/lib','./WebContro
      *
      * @cfg {number} index
      */
-    LayerGroup.prototype.index = 0;//TODO 优化：与 blend.activeLayer 与 本函数内部的 this.activeId  重复
+    LayerGroup.prototype.index = 0;
 
     /**
      * @private
@@ -5313,7 +5327,15 @@ define('src/web/LayerGroup.js',['require','./blend','../common/lib','./WebContro
     var eventsFunction = {};
     LayerGroup.prototype._initEvent = function() {
         
-        this.initSwipe();
+        if (this.enableSwipe !== false){
+            this.initSwipe();
+        }
+        
+        if ( this.layerAnimate === 'none') {
+            lowerAnimate = true;
+        }else if (this.layerAnimate){
+            $(this.main).addClass(this.layerAnimate);
+        }
 
         return null;
 
@@ -5340,48 +5362,24 @@ define('src/web/LayerGroup.js',['require','./blend','../common/lib','./WebContro
         // var me.__layers = [];
         var showfunction = function(event) {
             var layerid = event.detail;
-            // me.fire("groupSelected",layerid);
-            //同时，需要判断当前的active 
-
-            // me.activeId = layerid;
-
-            // console.log("group me.activeId active id"+me.activeId);
-
-
-            // console.log(layerid);
+           
             me._layers[layerid].beforeshow2 && me._layers[layerid].beforeshow2(event);
 
         };
         for (var id in this._layers) {
 
-            // me._layers[id].top = me.top;
-            // me._layers[id].left = me.left;
-            // me._layers[id].right = me.right;
-            // me._layers[id].bottom = me.bottom;
-
             this._layers[id].myGroup = this;
 
-
-            //after render should fire
-            // tmp = me._layers[id].onrender;
-            // me._layers[id].onrender = function(event){
-            //     // console.log("after render" + data);
-            //     // me.fire()
-            //     //fill with data
-            //     var layerid = event.detail;
-            //     // console.log(me.main);
-            //     // me.__layers[id].main;
-
-            //     $("#"+me.__layers[layerid].main.id,me.main).html(me.__layers[layerid].main.innerHTML);
-
-            //     tmp && tmp(event);
-            // };
             me._layers[id].beforeshow2 = me._layers[id].beforeshow;
             me._layers[id].beforeshow = showfunction;
 
             if (me.onshow) {
 
                 me._layers[id].onshow = me.onshow;
+            }
+            if (me.beforeshow) {
+
+                me._layers[id].beforeshow = me.beforeshow;
             }
             if (me.onrender) {
 
@@ -5441,11 +5439,7 @@ define('src/web/LayerGroup.js',['require','./blend','../common/lib','./WebContro
 
     LayerGroup.prototype.getIdByStep = function(step) {//startid
         this.index = this.idtoindex(this.activeId);
-        // console.log('next ' + this.index);
-        // if (this.index + step > this.layers.length || this.index + step < 0) {
-        //     return this.activeId;//定义边界
-        // }
-
+        
         return this.indextoid(this.index + step);
     };
 
@@ -5551,7 +5545,7 @@ define('src/web/LayerGroup.js',['require','./blend','../common/lib','./WebContro
             me.fire('onhide');
             //TODO add layer onhide events
       
-            blend.activeLayer = parentlayer;
+            // blend.activeLayer = parentlayer; //layergroup 不涉及activelayer，它只是layer的一部分
 
         };
         //出场动画结束
