@@ -19,7 +19,8 @@ define(function(require) {
     var layerApi = require('./layer/layerapi');
 
     var layer = require('./Layer.js');
-    var lowerAnimate = false;//$("html").hasClass("android");
+    var lowerAnimate = false;//
+    var isAndroid = $("html").hasClass("android");
 
 
     /**
@@ -164,11 +165,7 @@ define(function(require) {
             this.initSwipe();
         }
         
-        if ( this.layerAnimate === 'none') {
-            lowerAnimate = true;
-        }else if (this.layerAnimate){
-            $(this.main).addClass(this.layerAnimate);
-        }
+        
 
         return null;
 
@@ -182,54 +179,29 @@ define(function(require) {
         var me = this;
         
         //使用layer类处理 layers
-
+        
         //pages...
-        var tmp, tmp2;
+        if ( this.layerAnimate === 'none') {
+            lowerAnimate = true;
+        }else if (this.layerAnimate){
+            $(this.main).addClass(this.layerAnimate);
+        }
         $(this.main).addClass('layerGroup page page-on-center').appendTo('.pages');
         //处理定位
         
         $(this.main).css({top:me.top, left: me.left, right: me.right, bottom: me.bottom});
-        $(this.main).css({"height":'calc(100% - '+(me.top + me.bottom) +'px)',"width":'calc(100% - '+(me.left + me.right) +'px)'});
+
+        if (isAndroid) {
+            $(this.main).css({"height":$("body").outerHeight()-(me.top + me.bottom) ,"width":$("body").outerWidth()+(me.left + me.right) });
+        }else{
+            $(this.main).css({"height":'calc(100% - '+(me.top + me.bottom) +'px)',"width":'calc(100% - '+(me.left + me.right) +'px)'});
+        }
         //top的处理，由于渲染有bug，top的
 
-        // var me.__layers = [];
-        var showfunction = function(event) {
-            var layerid = event.detail;
-           
-            me._layers[layerid].beforeshow2 && me._layers[layerid].beforeshow2(event);
-
-        };
         for (var id in this._layers) {
+            this.add(this._layers[id]);
 
-            this._layers[id].myGroup = this;
-
-            me._layers[id].beforeshow2 = me._layers[id].beforeshow;
-            me._layers[id].beforeshow = showfunction;
-
-            if (me.onshow) {
-
-                me._layers[id].onshow = me.onshow;
-            }
-            if (me.beforeshow) {
-
-                me._layers[id].beforeshow = me.beforeshow;
-            }
-            if (me.onrender) {
-
-                me._layers[id].onrender = me.onrender;
-            }
-
-
-            console.log('start new layer', id, this._layers[id]);
-
-            this.__layers[this._layers[id].id] = new layer(this._layers[id]);
-
-            //安装好容器
-            this.main.appendChild(this.__layers[this._layers[id].id].main);
         }
-
-        // groupApi.create(me.id,me.layers,options,me);
-
 
         return this;
     };
@@ -313,15 +285,57 @@ define(function(require) {
      * @return {Layer}
      */
     LayerGroup.prototype.add = function(layerOptions, index ) {
+        
+        var me = this;
 
         if (!layerOptions.id){
             layerOptions.id = lib.getUniqueID();
         }
 
-        groupApi.addLayer(this.id, layerOptions, index);
+        //判断此layer的id是否存在
+        if ( this._layers[layerOptions.id] && this.__layers[layerOptions.id] ) {
 
+            console.log("layerid:"+layerOptions.id+" in group has already exist...");
+            
+            if (layerOptions.url && this._layers[layerOptions.id].url !== layerOptions.url) {
+
+                this.__layers[layerOptions.id].reload(layerOptions.url);
+
+            }
+
+            this.__layers[layerOptions.id].in();
+            return ;
+        }
+
+        if (me.onshow) {
+            layerOptions.onshow = me.onshow;
+        }
+        if (me.beforeshow) {
+            layerOptions.beforeshow = me.beforeshow;
+        }
+        if (me.onrender) {
+            layerOptions.onrender = me.onrender;
+        }
+
+        layerOptions.myGroup = this;
+
+        console.log('paint LayerGroup > layer', layerOptions.id, layerOptions);
+
+        var layerobj = new layer(layerOptions);
+
+        this.__layers[layerOptions.id] = layerobj;
+        this.__layers[layerOptions.id] = layerobj;
         this._layers[layerOptions.id] = layerOptions;
 
+        if (index===0) {
+            this.layers.unshift(layerobj);
+        }else{
+             this.layers.push(layerobj);
+        }
+
+        //安装好容器
+        this.main.appendChild(layerobj.main);
+        
         return this;
     };
 

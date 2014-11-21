@@ -39,7 +39,7 @@ define(
                         data = $(".page",data).html();
                     }
 
-
+                    //动画中渲染页面会有bug发生，所以需要等待页面动画完成后进行渲染操作
                     if (context.hasState("slidein") ) {
                         context.once("onshow",function(){
                             dom.innerHTML = data;
@@ -49,12 +49,12 @@ define(
                         dom.innerHTML = data;
                         context.fire('onrender');
                     }
-
-                    //动画中渲染页面会有bug发生，所以需要等待渲染好页面
+                    
                    
                 },
                 error: function(err) {
                     context.fire('renderfailed');
+
                 }
             });
 
@@ -69,22 +69,10 @@ define(
             }else{
                 container = $(".pages");
             }
+            if (!$('#'+ context.main.id).length) {
+                $(context.main).appendTo(container);
+            }
 
-            // if (!context.state) {//state 空，说明context可用
-                // context.
-                if (!$('#'+ context.main.id).length) {
-                    $(context.main).appendTo(container);
-                    
-                }
-            // }else { //等待fire
-            //     context.once('onrender', function() {
-            //         if (!$('#'+ context.main.id).length) {
-            //             $(context.main).appendTo(container);
-                        
-            //         }
-            //     });
-
-            // }
         };
 
         //for unbind

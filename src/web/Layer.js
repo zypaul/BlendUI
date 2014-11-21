@@ -185,14 +185,16 @@ define(
 
             });
 
+            me.on("renderfailed",function(event){
+                me.stopLoading();
+                me.removeState("get");
+            });
+
             // me.onshow2 = me.onshow;
             me.on('onshow',function(event){
 
                 
                 me.stopLoading();
-
-                //更新active page , 在 swipe api中，同样需要更新
-                blend.activeLayer = $(me.main);
 
                 //这里的逻辑可能比较难以理解
                 //其实非常简单，当是layergroup的时候，layer.in，【不会】不会在layerStack中存储，而是替换，保持layergroup仅有一个layer在stack中
@@ -278,6 +280,7 @@ define(
                 console.log('layer is already activity ');
                 return ;
             }
+
             // 判断是否render了,autoload的会自动render，否则不会
             if (!this.hasState("got") && !this.hasState("get")) {// ['','get','got']
                 this.render();//auto has get state
@@ -287,27 +290,10 @@ define(
             
             //判断是否页面中已经存在，如果不存在，则插入到container中
             layerApi.resume(this);
+
             var me = this;
-            if(this.hasState("get")) {
-                //排队，
-                //取页面模板时，会加state
-                me.once("onrender",function(){
-                    me.removeState("get");
-                    me.addState("got");
-                    me.in.call(me);
-                    
-                });
-                // setTimeout(function(){
-                    
-                // },100);
-                
-                console.log("waiting for the template load... cant' move in now. it has state... get");
-                return ;
-            }
-            // state
+            
             this.addState("slidein");
-
-
 
             //动画的方向要判断
             var translationReverse = false;
@@ -376,20 +362,31 @@ define(
             if (!lowerAnimate){
                 layerinContext.animationEnd(function(){
 
+                    //执行靠边操作
                     layerout.removeClass(function(index,css){
-                        return (css.match (/\bpage-\S+/g) || []).join(' ');
-                    }).addClass("page page-on-"+layerOutPosition);
-
+                        return (css.match (/\bpage-from\S+/g) || []).join(' ');
+                    });
+                    if ( blend.activeLayer.attr("data-blend-id") !== layerout.attr("data-blend-id") ){
+                        layerout.addClass("page-on-"+layerOutPosition);
+                    }
+                    //执行居中操作
                     layerin.removeClass(function(index,css){
-                        return (css.match (/\bpage-\S+/g) || []).join(' ');
-                    }).addClass('page-on-center');
-
+                        return (css.match (/\bpage-from\S+/g) || []).join(' ');
+                    });
+                    if ( blend.activeLayer.attr("data-blend-id") === layerin.attr("data-blend-id") ){
+                        layerin.addClass('page-on-center');
+                    }
+                    
                     afteranimate();
                     
                 });
             }else{
                 afteranimate();//无动画
             }
+
+            //更新active page , 在 swipe api中，同样需要更新
+            blend.activeLayer = $(me.main);
+
             return this;
         };
 
