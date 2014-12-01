@@ -222,6 +222,7 @@ define(["require",'./../common/lib',"./configs","./events",'../../usecase/js/lib
             if (ipad) {
                 $("html").addClass('ipad');
             }
+
             
         })();
 

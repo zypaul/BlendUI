@@ -17,6 +17,8 @@ define(
             if (!this.id) {
                 this.id = options.id || lib.getUniqueID();
             }
+            this.url = options.url||"";
+            
             this.main = options.main ? this.setMainAttr(options.main) : this.initMain(options);
 
             this.initOptions(options);
@@ -98,6 +100,11 @@ define(
                 main = main;
                 main.setAttribute('data-blend', this.getType());
                 main.setAttribute('data-blend-id', this.id);
+
+                if (this.url) {
+                    main.setAttribute("data-url",this.url);
+                }
+
 
                 //for web set default css
                 //layer 可以添加page

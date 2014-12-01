@@ -2628,6 +2628,7 @@ define('src/web/blend',["require",'./../common/lib',"./configs","./events",'../.
             if (ipad) {
                 $("html").addClass('ipad');
             }
+
             
         })();
 
@@ -2659,6 +2660,8 @@ define(
             if (!this.id) {
                 this.id = options.id || lib.getUniqueID();
             }
+            this.url = options.url||"";
+            
             this.main = options.main ? this.setMainAttr(options.main) : this.initMain(options);
 
             this.initOptions(options);
@@ -2740,6 +2743,11 @@ define(
                 main = main;
                 main.setAttribute('data-blend', this.getType());
                 main.setAttribute('data-blend-id', this.id);
+
+                if (this.url) {
+                    main.setAttribute("data-url",this.url);
+                }
+
 
                 //for web set default css
                 //layer 可以添加page
@@ -3269,101 +3277,16 @@ define(
         //处理内部事宜,也可用来指定dom事件
         //@params id for runtime use,useless for web
         WebControl.prototype.on = events.on;
-        // function(type, callback, id, context) {
-        //     if (typeof context === 'undefined') {
-        //         context = blend.get(id || this.id).main;
-        //     }
-
-        //     //继承父类的on事件 FIXME 父类此方法会引起多重绑定的bug
-        //     // Control.prototype.on(type, callback,(id||this.id) , context);
-
-        //     //细化 web端 事件的处理
-        //     //事件on
-
-        //     if (typeof callback === 'function') {
-        //         context.addEventListener(type, callback, false);
-        //     }
-        //     // myevents.push([type, callback]);
-
-        // };
+        
         //监听一次
         WebControl.prototype.once = events.once;
-        //  function(type, callback, id, context) {
-        //     if (typeof context === 'undefined') {
-        //         // context = this.main;
-        //         context = blend.get(id || this.id).main;
-        //     }
-
-        //     //继承父类的on事件 FIXME 父类此方法会引起多重绑定的bug
-        //     // Control.prototype.on(type, callback,(id||this.id) , context);
-
-        //     //细化 web端 事件的处理
-        //     //事件on
-
-        //     if (typeof callback === 'function') {
-        //         var cb = function() {
-        //             callback.apply(context, arguments);
-        //             context.removeEventListener(type, cb, false);
-        //         };
-        //         context.addEventListener(type, cb, false);
-        //     }
-
-        // };
+        
         //@params id for runtime use,useless for web
         WebControl.prototype.off = events.off;
-        // function(type, callback, id, context) {
-        //     if (typeof context === 'undefined') {
-        //         // context = this.main;
-        //         context = blend.get(id || this.id).main;
-        //     }
-        //     //继承父类的on事件
-        //     // Control.prototype.off(type, callback,(id||this.id) , context);
-
-        //     //细化 web端 事件的处理
-        //     //事件off
-
-        //     if (typeof callback === 'function') {
-        //         context.removeEventListener(type, callback, false);
-        //     }
-        // };
+        
 
         WebControl.prototype.fire = events.fire;
-        // function(type, argAry, context) {
-        //     //继承父类的fire 事件
-        //     // Control.prototype.fire(type, argAry, context);
-
-        //     //细化 web端 事件的处理
-        //     //事件 fire,事件可以冒泡
-        //     try {
-        //         var e;
-        //         if (!argAry)argAry = this.id;
-
-        //         if (typeof context === 'undefined') {
-        //             // context = this.main;
-        //             context = blend.get(argAry).main;
-        //         }
-        //         if (typeof CustomEvent !== 'undefined') {
-        //             var opt = {
-        //                 bubbles: true,
-        //                 cancelable: true,
-        //                 detail: argAry
-        //             };
-        //             e = new CustomEvent(type, opt);
-        //             console.log(type, opt);
-        //         } else {
-        //             e = document.createEvent('CustomEvent');
-        //             e.initCustomEvent(type, true, true, argAry);
-        //         }
-        //         if (context) {
-        //             (context).dispatchEvent(e);
-        //         }
-
-
-        //     } catch (ex) {
-        //         console.warn('Touch.js is not supported by environment.', ex.stack);
-        //     }
-
-        // };
+        
 
         WebControl.prototype.animationEnd = function(callback) {
             var events = ['webkitAnimationEnd', 'OAnimationEnd', 'MSAnimationEnd', 'animationend'],
@@ -3935,7 +3858,7 @@ define(
                         data = $(".page",data).html();
                     }
 
-
+                    //动画中渲染页面会有bug发生，所以需要等待页面动画完成后进行渲染操作
                     if (context.hasState("slidein") ) {
                         context.once("onshow",function(){
                             dom.innerHTML = data;
@@ -3945,12 +3868,12 @@ define(
                         dom.innerHTML = data;
                         context.fire('onrender');
                     }
-
-                    //动画中渲染页面会有bug发生，所以需要等待渲染好页面
+                    
                    
                 },
                 error: function(err) {
                     context.fire('renderfailed');
+
                 }
             });
 
@@ -3965,22 +3888,10 @@ define(
             }else{
                 container = $(".pages");
             }
+            if (!$('#'+ context.main.id).length) {
+                $(context.main).appendTo(container);
+            }
 
-            // if (!context.state) {//state 空，说明context可用
-                // context.
-                if (!$('#'+ context.main.id).length) {
-                    $(context.main).appendTo(container);
-                    
-                }
-            // }else { //等待fire
-            //     context.once('onrender', function() {
-            //         if (!$('#'+ context.main.id).length) {
-            //             $(context.main).appendTo(container);
-                        
-            //         }
-            //     });
-
-            // }
         };
 
         //for unbind
@@ -4526,7 +4437,6 @@ define(
         Layer.prototype.left = 0;
         Layer.prototype.right = 0;
 
-
         Layer.prototype.pullText = "下拉刷新...";
         Layer.prototype.loadingText = "加载中...";
         Layer.prototype.releaseText = "释放刷新...";
@@ -4627,14 +4537,16 @@ define(
 
             });
 
+            me.on("renderfailed",function(event){
+                me.stopLoading();
+                me.removeState("get");
+            });
+
             // me.onshow2 = me.onshow;
             me.on('onshow',function(event){
 
                 
                 me.stopLoading();
-
-                //更新active page , 在 swipe api中，同样需要更新
-                blend.activeLayer = $(me.main);
 
                 //这里的逻辑可能比较难以理解
                 //其实非常简单，当是layergroup的时候，layer.in，【不会】不会在layerStack中存储，而是替换，保持layergroup仅有一个layer在stack中
@@ -4663,7 +4575,7 @@ define(
 
         //默认属性
         Layer.prototype.type = "layer";
-
+        // Layer.prototype.type = 'Pager';
 
         /**
          * loading状态出现的时间
@@ -4720,6 +4632,13 @@ define(
                 console.log('layer is already activity ');
                 return ;
             }
+
+            if ( this.hasState("slidein") ) {
+                console.log("this layer is sliding in.");
+                this.removeState("slidein");
+                return ;
+            }
+
             // 判断是否render了,autoload的会自动render，否则不会
             if (!this.hasState("got") && !this.hasState("get")) {// ['','get','got']
                 this.render();//auto has get state
@@ -4729,27 +4648,10 @@ define(
             
             //判断是否页面中已经存在，如果不存在，则插入到container中
             layerApi.resume(this);
+
             var me = this;
-            if(this.hasState("get")) {
-                //排队，
-                //取页面模板时，会加state
-                me.once("onrender",function(){
-                    me.removeState("get");
-                    me.addState("got");
-                    me.in.call(me);
-                    
-                });
-                // setTimeout(function(){
-                    
-                // },100);
-                
-                console.log("waiting for the template load... cant' move in now. it has state... get");
-                return ;
-            }
-            // state
+            
             this.addState("slidein");
-
-
 
             //动画的方向要判断
             var translationReverse = false;
@@ -4758,7 +4660,9 @@ define(
                     translationReverse = true;
                 }
             }
-
+            if ( this.reverse ) {
+                translationReverse = !translationReverse;
+            }
             var layerin;
             var layerinContext;
             var layerout = blend.activeLayer;
@@ -4780,7 +4684,12 @@ define(
                 }
             }
             if (!this.myGroup || !layerout.parent().hasClass("layerGroup")) {// 普通layer不需要转出操作
-                layerout = $();
+                // 特别的，添加是否子layer支持
+                // 当子layer时，不需要转出，其他情况还是需要转出
+                if ( this.isSubLayer() ) {
+                    layerout = $();
+                }
+                
             }
             //优化逻辑
             var layerOutPosition,layerInPosition;
@@ -4818,20 +4727,31 @@ define(
             if (!lowerAnimate){
                 layerinContext.animationEnd(function(){
 
+                    //执行靠边操作
                     layerout.removeClass(function(index,css){
-                        return (css.match (/\bpage-\S+/g) || []).join(' ');
-                    }).addClass("page page-on-"+layerOutPosition);
-
+                        return (css.match (/\bpage-from\S+/g) || []).join(' ');
+                    });
+                    if ( blend.activeLayer.attr("data-blend-id") !== layerout.attr("data-blend-id") ){
+                        layerout.addClass("page-on-"+layerOutPosition);
+                    }
+                    //执行居中操作
                     layerin.removeClass(function(index,css){
-                        return (css.match (/\bpage-\S+/g) || []).join(' ');
-                    }).addClass('page-on-center');
-
+                        return (css.match (/\bpage-from\S+/g) || []).join(' ');
+                    });
+                    if ( blend.activeLayer.attr("data-blend-id") === layerin.attr("data-blend-id") ){
+                        layerin.addClass('page-on-center');
+                    }
+                    
                     afteranimate();
                     
                 });
             }else{
                 afteranimate();//无动画
             }
+
+            //更新active page , 在 swipe api中，同样需要更新
+            blend.activeLayer = $(me.main);
+
             return this;
         };
 
@@ -4861,9 +4781,15 @@ define(
             var layerout = $(me.main);
             var layerin = parentlayer;
 
+            var inobj = Blend.ui.get(layerin.attr("data-blend-id"));
+            inobj && inobj.addState("slidein");
+
             if (!this.myGroup || !layerout.parent().hasClass("layerGroup")) {// 普通layer不需要转出操作
                 // parentlayer = $();
-                layerin = $();
+                // layerin = $();
+                if ( this.isSubLayer() ) {
+                    layerin = $();
+                }
             }
 
             if ( lowerAnimate ) {
@@ -4884,6 +4810,7 @@ define(
                 me.fire("onhide");
                 
                 blend.activeLayer = parentlayer;
+                inobj && inobj.removeState("slidein");
                 // me.dispose();
             };
 
@@ -4937,6 +4864,10 @@ define(
             layerApi.resume(this);
 
             return this;
+        };
+
+        Layer.prototype.isSubLayer = function(){
+            return (this.sublayer || this.myGroup)?true:false;
         };
 
         /**
@@ -5034,7 +4965,7 @@ define(
          * @returns boolean
          */
         Layer.prototype.isActive = function(){
-            return blend.activeLayer.attr("id") === this.main.id;
+            return $(this.main).hasClass("page-on-center");//blend.activeLayer.attr("id") === this.main.id;
         };
 
 
@@ -5186,7 +5117,8 @@ define('src/web/LayerGroup.js',['require','./blend','../common/lib','./WebContro
     var layerApi = require('./layer/layerapi');
 
     var layer = require('./Layer.js');
-    var lowerAnimate = false;//$("html").hasClass("android");
+    var lowerAnimate = false;//
+    var isAndroid = $("html").hasClass("android");
 
 
     /**
@@ -5331,11 +5263,7 @@ define('src/web/LayerGroup.js',['require','./blend','../common/lib','./WebContro
             this.initSwipe();
         }
         
-        if ( this.layerAnimate === 'none') {
-            lowerAnimate = true;
-        }else if (this.layerAnimate){
-            $(this.main).addClass(this.layerAnimate);
-        }
+        
 
         return null;
 
@@ -5349,54 +5277,29 @@ define('src/web/LayerGroup.js',['require','./blend','../common/lib','./WebContro
         var me = this;
         
         //使用layer类处理 layers
-
+        
         //pages...
-        var tmp, tmp2;
+        if ( this.layerAnimate === 'none') {
+            lowerAnimate = true;
+        }else if (this.layerAnimate){
+            $(this.main).addClass(this.layerAnimate);
+        }
         $(this.main).addClass('layerGroup page page-on-center').appendTo('.pages');
         //处理定位
         
         $(this.main).css({top:me.top, left: me.left, right: me.right, bottom: me.bottom});
-        $(this.main).css({"height":'calc(100% - '+(me.top + me.bottom) +'px)',"width":'calc(100% - '+(me.left + me.right) +'px)'});
+
+        if (isAndroid) {
+            $(this.main).css({"height":$("body").outerHeight()-(me.top + me.bottom) ,"width":$("body").outerWidth()+(me.left + me.right) });
+        }else{
+            $(this.main).css({"height":'calc(100% - '+(me.top + me.bottom) +'px)',"width":'calc(100% - '+(me.left + me.right) +'px)'});
+        }
         //top的处理，由于渲染有bug，top的
 
-        // var me.__layers = [];
-        var showfunction = function(event) {
-            var layerid = event.detail;
-           
-            me._layers[layerid].beforeshow2 && me._layers[layerid].beforeshow2(event);
-
-        };
         for (var id in this._layers) {
+            this.add(this._layers[id]);
 
-            this._layers[id].myGroup = this;
-
-            me._layers[id].beforeshow2 = me._layers[id].beforeshow;
-            me._layers[id].beforeshow = showfunction;
-
-            if (me.onshow) {
-
-                me._layers[id].onshow = me.onshow;
-            }
-            if (me.beforeshow) {
-
-                me._layers[id].beforeshow = me.beforeshow;
-            }
-            if (me.onrender) {
-
-                me._layers[id].onrender = me.onrender;
-            }
-
-
-            console.log('start new layer', id, this._layers[id]);
-
-            this.__layers[this._layers[id].id] = new layer(this._layers[id]);
-
-            //安装好容器
-            this.main.appendChild(this.__layers[this._layers[id].id].main);
         }
-
-        // groupApi.create(me.id,me.layers,options,me);
-
 
         return this;
     };
@@ -5480,15 +5383,57 @@ define('src/web/LayerGroup.js',['require','./blend','../common/lib','./WebContro
      * @return {Layer}
      */
     LayerGroup.prototype.add = function(layerOptions, index ) {
+        
+        var me = this;
 
         if (!layerOptions.id){
             layerOptions.id = lib.getUniqueID();
         }
 
-        groupApi.addLayer(this.id, layerOptions, index);
+        //判断此layer的id是否存在
+        if ( this._layers[layerOptions.id] && this.__layers[layerOptions.id] ) {
 
+            console.log("layerid:"+layerOptions.id+" in group has already exist...");
+            
+            if (layerOptions.url && this._layers[layerOptions.id].url !== layerOptions.url) {
+
+                this.__layers[layerOptions.id].reload(layerOptions.url);
+
+            }
+
+            this.__layers[layerOptions.id].in();
+            return ;
+        }
+
+        if (me.onshow) {
+            layerOptions.onshow = me.onshow;
+        }
+        if (me.beforeshow) {
+            layerOptions.beforeshow = me.beforeshow;
+        }
+        if (me.onrender) {
+            layerOptions.onrender = me.onrender;
+        }
+
+        layerOptions.myGroup = this;
+
+        console.log('paint LayerGroup > layer', layerOptions.id, layerOptions);
+
+        var layerobj = new layer(layerOptions);
+
+        this.__layers[layerOptions.id] = layerobj;
+        this.__layers[layerOptions.id] = layerobj;
         this._layers[layerOptions.id] = layerOptions;
 
+        if (index===0) {
+            this.layers.unshift(layerobj);
+        }else{
+             this.layers.push(layerobj);
+        }
+
+        //安装好容器
+        this.main.appendChild(layerobj.main);
+        
         return this;
     };
 
@@ -5617,6 +5562,8 @@ require(['src/web/blend','src/web/dialog/alert','src/web/slider','src/web/Layer.
     // window.Blend = blend;
     window.Blend = window.Blend || {};//初始化window的blend 对象 ， 将 blend 作为模块 绑定到 Blend.ui 上
     window.Blend.ui = blend;
+
+    
 
     //等到dom ready之后回调
     var e;

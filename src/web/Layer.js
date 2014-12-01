@@ -84,7 +84,6 @@ define(
         Layer.prototype.left = 0;
         Layer.prototype.right = 0;
 
-
         Layer.prototype.pullText = "下拉刷新...";
         Layer.prototype.loadingText = "加载中...";
         Layer.prototype.releaseText = "释放刷新...";
@@ -223,7 +222,7 @@ define(
 
         //默认属性
         Layer.prototype.type = "layer";
-
+        // Layer.prototype.type = 'Pager';
 
         /**
          * loading状态出现的时间
@@ -281,6 +280,12 @@ define(
                 return ;
             }
 
+            if ( this.hasState("slidein") ) {
+                console.log("this layer is sliding in.");
+                this.removeState("slidein");
+                return ;
+            }
+
             // 判断是否render了,autoload的会自动render，否则不会
             if (!this.hasState("got") && !this.hasState("get")) {// ['','get','got']
                 this.render();//auto has get state
@@ -302,7 +307,9 @@ define(
                     translationReverse = true;
                 }
             }
-
+            if ( this.reverse ) {
+                translationReverse = !translationReverse;
+            }
             var layerin;
             var layerinContext;
             var layerout = blend.activeLayer;
@@ -324,7 +331,12 @@ define(
                 }
             }
             if (!this.myGroup || !layerout.parent().hasClass("layerGroup")) {// 普通layer不需要转出操作
-                layerout = $();
+                // 特别的，添加是否子layer支持
+                // 当子layer时，不需要转出，其他情况还是需要转出
+                if ( this.isSubLayer() ) {
+                    layerout = $();
+                }
+                
             }
             //优化逻辑
             var layerOutPosition,layerInPosition;
@@ -416,9 +428,15 @@ define(
             var layerout = $(me.main);
             var layerin = parentlayer;
 
+            var inobj = Blend.ui.get(layerin.attr("data-blend-id"));
+            inobj && inobj.addState("slidein");
+
             if (!this.myGroup || !layerout.parent().hasClass("layerGroup")) {// 普通layer不需要转出操作
                 // parentlayer = $();
-                layerin = $();
+                // layerin = $();
+                if ( this.isSubLayer() ) {
+                    layerin = $();
+                }
             }
 
             if ( lowerAnimate ) {
@@ -439,6 +457,7 @@ define(
                 me.fire("onhide");
                 
                 blend.activeLayer = parentlayer;
+                inobj && inobj.removeState("slidein");
                 // me.dispose();
             };
 
@@ -492,6 +511,10 @@ define(
             layerApi.resume(this);
 
             return this;
+        };
+
+        Layer.prototype.isSubLayer = function(){
+            return (this.sublayer || this.myGroup)?true:false;
         };
 
         /**
@@ -589,7 +612,7 @@ define(
          * @returns boolean
          */
         Layer.prototype.isActive = function(){
-            return blend.activeLayer.attr("id") === this.main.id;
+            return $(this.main).hasClass("page-on-center");//blend.activeLayer.attr("id") === this.main.id;
         };
 
 

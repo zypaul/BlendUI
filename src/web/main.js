@@ -20,6 +20,8 @@ require(['src/web/blend','src/web/dialog/alert','src/web/slider','src/web/Layer.
     window.Blend = window.Blend || {};//初始化window的blend 对象 ， 将 blend 作为模块 绑定到 Blend.ui 上
     window.Blend.ui = blend;
 
+    
+
     //等到dom ready之后回调
     var e;
     if (typeof CustomEvent !== 'undefined') {

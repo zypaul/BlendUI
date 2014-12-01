@@ -32,101 +32,16 @@ define(
         //处理内部事宜,也可用来指定dom事件
         //@params id for runtime use,useless for web
         WebControl.prototype.on = events.on;
-        // function(type, callback, id, context) {
-        //     if (typeof context === 'undefined') {
-        //         context = blend.get(id || this.id).main;
-        //     }
-
-        //     //继承父类的on事件 FIXME 父类此方法会引起多重绑定的bug
-        //     // Control.prototype.on(type, callback,(id||this.id) , context);
-
-        //     //细化 web端 事件的处理
-        //     //事件on
-
-        //     if (typeof callback === 'function') {
-        //         context.addEventListener(type, callback, false);
-        //     }
-        //     // myevents.push([type, callback]);
-
-        // };
+        
         //监听一次
         WebControl.prototype.once = events.once;
-        //  function(type, callback, id, context) {
-        //     if (typeof context === 'undefined') {
-        //         // context = this.main;
-        //         context = blend.get(id || this.id).main;
-        //     }
-
-        //     //继承父类的on事件 FIXME 父类此方法会引起多重绑定的bug
-        //     // Control.prototype.on(type, callback,(id||this.id) , context);
-
-        //     //细化 web端 事件的处理
-        //     //事件on
-
-        //     if (typeof callback === 'function') {
-        //         var cb = function() {
-        //             callback.apply(context, arguments);
-        //             context.removeEventListener(type, cb, false);
-        //         };
-        //         context.addEventListener(type, cb, false);
-        //     }
-
-        // };
+        
         //@params id for runtime use,useless for web
         WebControl.prototype.off = events.off;
-        // function(type, callback, id, context) {
-        //     if (typeof context === 'undefined') {
-        //         // context = this.main;
-        //         context = blend.get(id || this.id).main;
-        //     }
-        //     //继承父类的on事件
-        //     // Control.prototype.off(type, callback,(id||this.id) , context);
-
-        //     //细化 web端 事件的处理
-        //     //事件off
-
-        //     if (typeof callback === 'function') {
-        //         context.removeEventListener(type, callback, false);
-        //     }
-        // };
+        
 
         WebControl.prototype.fire = events.fire;
-        // function(type, argAry, context) {
-        //     //继承父类的fire 事件
-        //     // Control.prototype.fire(type, argAry, context);
-
-        //     //细化 web端 事件的处理
-        //     //事件 fire,事件可以冒泡
-        //     try {
-        //         var e;
-        //         if (!argAry)argAry = this.id;
-
-        //         if (typeof context === 'undefined') {
-        //             // context = this.main;
-        //             context = blend.get(argAry).main;
-        //         }
-        //         if (typeof CustomEvent !== 'undefined') {
-        //             var opt = {
-        //                 bubbles: true,
-        //                 cancelable: true,
-        //                 detail: argAry
-        //             };
-        //             e = new CustomEvent(type, opt);
-        //             console.log(type, opt);
-        //         } else {
-        //             e = document.createEvent('CustomEvent');
-        //             e.initCustomEvent(type, true, true, argAry);
-        //         }
-        //         if (context) {
-        //             (context).dispatchEvent(e);
-        //         }
-
-
-        //     } catch (ex) {
-        //         console.warn('Touch.js is not supported by environment.', ex.stack);
-        //     }
-
-        // };
+        
 
         WebControl.prototype.animationEnd = function(callback) {
             var events = ['webkitAnimationEnd', 'OAnimationEnd', 'MSAnimationEnd', 'animationend'],
