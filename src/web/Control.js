@@ -12,7 +12,7 @@ define(
 
         function Control(options) {
             options = options || {};
-
+            var me = this;
 
             if (!this.id) {
                 this.id = options.id || lib.getUniqueID();
@@ -28,6 +28,12 @@ define(
             this.currentStates = {};
             this._listener = {};
 
+            if (options.main) {//本页已经render
+                this.addState("got");
+                blend.ready(function(){
+                    me.fire('onrender');
+                });
+            }
 
             //this.fire('init');
         }

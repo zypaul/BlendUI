@@ -710,8 +710,10 @@ define(
                 if (!argAry)argAry = this.id;
 
                 if (typeof argAry === 'undefined') {
-                    console.warn("cant find fire object. ");
-                    return ;
+                    // console.warn("cant find fire object. ");
+                    // argAry = 0;
+                    // return ;
+                    context = document;
                 }
 
                 if (typeof context === 'undefined' && typeof argAry !== 'undefined') {
@@ -744,10 +746,13 @@ define(
                 //仅在webcontrol中调用fire时，有这个方法
 
                 // 触发直接挂在对象上的方法，除了需要冒泡的方法需要注册on事件以外，其他事件一律不需要绑定on 方法
-                var handler = Blend.ui.get(argAry)[ type];
-                if (typeof handler === 'function') {
-                    handler.call(this, e);
+                if (typeof argAry !== 'undefined') {
+                    var handler = Blend.ui.get(argAry)[ type];
+                    if (typeof handler === 'function') {
+                        handler.call(this, e);
+                    }
                 }
+                
 
                 if (context) {
                     // e.srcElement = context;//修改无效
@@ -2474,6 +2479,16 @@ define('src/web/blend',["require",'./../common/lib',"./configs","./events",'../.
             }
         });
 
+        blend.ready = function(cb){
+            if (/complete|loaded|interactive/.test(document.readyState) && document.body) 
+                cb();
+            else 
+                document.addEventListener('DOMContentLoaded', function(){ cb(); }, false);
+        };
+        blend.ready(function(){
+            events.fire("blendready");
+        });
+
         /**
          * 当前的active apge 记录到blend中
          *
@@ -2575,6 +2590,9 @@ define('src/web/blend',["require",'./../common/lib',"./configs","./events",'../.
         blend.create = function(type, options) {
 
         };
+        blend.canGoBack = function(){
+            return blend.layerStack.length;
+        };
 
         /**
          * 根据id获取实例
@@ -2655,7 +2673,7 @@ define(
 
         function Control(options) {
             options = options || {};
-
+            var me = this;
 
             if (!this.id) {
                 this.id = options.id || lib.getUniqueID();
@@ -2671,6 +2689,12 @@ define(
             this.currentStates = {};
             this._listener = {};
 
+            if (options.main) {//本页已经render
+                this.addState("got");
+                blend.ready(function(){
+                    me.fire('onrender');
+                });
+            }
 
             //this.fire('init');
         }
@@ -4617,15 +4641,16 @@ define(
 
         /**
          * 激活页面
+
+            options.reverse:  support
+            options.fx: me.fx,
+            options.duration: me.duration,
+            options.timingFn: me.timingFn
+            
          * @returns this 当前实例
          */
-        Layer.prototype.in = function(){
-            /*
-                reverse: me.reverse,
-                fx: me.fx,
-                duration: me.duration,
-                timingFn: me.timingFn
-            */
+        Layer.prototype.in = function(options){
+            
 
             //有一种情况不需要入场动画，比如：自己转自己
             if ( this.isActive() ) {
@@ -4780,6 +4805,7 @@ define(
             // }
             var layerout = $(me.main);
             var layerin = parentlayer;
+            var layerinContext = blend.get(layerin.attr("data-blend-id"));
 
             var inobj = Blend.ui.get(layerin.attr("data-blend-id"));
             inobj && inobj.addState("slidein");
@@ -4802,12 +4828,14 @@ define(
             
             
             me.fire("beforehide");
-            // if ( me.myGroup ) {
-            //     // me.myGroup.fire("beforehide");
-            // }
+            
+            layerinContext && layerinContext.fire("beforeshow");
+            
             var afteranimate = function(){
                 
                 me.fire("onhide");
+
+                layerinContext && layerinContext.fire("onshow");
                 
                 blend.activeLayer = parentlayer;
                 inobj && inobj.removeState("slidein");
@@ -4949,7 +4977,7 @@ define(
          */
         Layer.prototype.canGoBack = function(){
 
-            return blend.layerStack.length;
+            return blend.canGoBack();
         };
 
         /**
@@ -5566,26 +5594,26 @@ require(['src/web/blend','src/web/dialog/alert','src/web/slider','src/web/Layer.
     
 
     //等到dom ready之后回调
-    var e;
-    if (typeof CustomEvent !== 'undefined') {
-        e = new CustomEvent('blendready', {
-          // detail: { slideNumber: Math.abs(slideNumber) },
-          bubbles: false,
-          cancelable: true
-        });
-    }else{
-        e  = document.createEvent("Event");
-        e.initEvent("blendready",false,false);
-    }
-        
- 
-    if (/complete|loaded|interactive/.test(document.readyState)) {
-        document.dispatchEvent(e);
-    } else {
-        document.addEventListener('DOMContentLoaded', function() {
-            document.dispatchEvent(e);
-        }, false);
-    }
+    // var e;
+    // if (typeof CustomEvent !== 'undefined') {
+    //     e = new CustomEvent('blendready', {
+    //       // detail: { slideNumber: Math.abs(slideNumber) },
+    //       bubbles: false,
+    //       cancelable: true
+    //     });
+    // }else{
+    //     e  = document.createEvent("Event");
+    //     e.initEvent("blendready",false,false);
+    // }
+         
+    // if (/complete|loaded|interactive/.test(document.readyState)) {
+    //     document.dispatchEvent(e);
+    // } else {
+    //     // DOMContentLoaded
+    //     document.addEventListener('DOMContentLoaded', function() {
+    //         document.dispatchEvent(e);
+    //     }, false);
+    // }
     
 },null,true);
 

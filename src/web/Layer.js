@@ -264,15 +264,16 @@ define(
 
         /**
          * 激活页面
+
+            options.reverse:  support
+            options.fx: me.fx,
+            options.duration: me.duration,
+            options.timingFn: me.timingFn
+            
          * @returns this 当前实例
          */
-        Layer.prototype.in = function(){
-            /*
-                reverse: me.reverse,
-                fx: me.fx,
-                duration: me.duration,
-                timingFn: me.timingFn
-            */
+        Layer.prototype.in = function(options){
+            
 
             //有一种情况不需要入场动画，比如：自己转自己
             if ( this.isActive() ) {
@@ -427,6 +428,7 @@ define(
             // }
             var layerout = $(me.main);
             var layerin = parentlayer;
+            var layerinContext = blend.get(layerin.attr("data-blend-id"));
 
             var inobj = Blend.ui.get(layerin.attr("data-blend-id"));
             inobj && inobj.addState("slidein");
@@ -449,12 +451,14 @@ define(
             
             
             me.fire("beforehide");
-            // if ( me.myGroup ) {
-            //     // me.myGroup.fire("beforehide");
-            // }
+            
+            layerinContext && layerinContext.fire("beforeshow");
+            
             var afteranimate = function(){
                 
                 me.fire("onhide");
+
+                layerinContext && layerinContext.fire("onshow");
                 
                 blend.activeLayer = parentlayer;
                 inobj && inobj.removeState("slidein");
@@ -596,7 +600,7 @@ define(
          */
         Layer.prototype.canGoBack = function(){
 
-            return blend.layerStack.length;
+            return blend.canGoBack();
         };
 
         /**

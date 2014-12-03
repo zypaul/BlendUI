@@ -64,8 +64,20 @@ define(["require",'./../common/lib',"./configs","./events",'../../usecase/js/lib
         };
         document.addEventListener("onrender",function(eve){
             if (eve.detail && cbs[eve.detail]) {
-                cbs[eve.detail].call(blend.get(eve.detail),blend.get(eve.detail).main);//native 无法传递 layer 对象，所以无法使用 this
+                //native 无法传递 layer 对象，所以无法使用 this
+                cbs[eve.detail].call(blend.get(eve.detail),blend.get(eve.detail).main);
+                
             }
+        });
+
+        blend.ready = function(cb){
+            if (/complete|loaded|interactive/.test(document.readyState) && document.body) 
+                cb();
+            else 
+                document.addEventListener('DOMContentLoaded', function(){ cb(); }, false);
+        };
+        blend.ready(function(){
+            events.fire("blendready");
         });
 
         /**
@@ -168,6 +180,9 @@ define(["require",'./../common/lib',"./configs","./events",'../../usecase/js/lib
 
         blend.create = function(type, options) {
 
+        };
+        blend.canGoBack = function(){
+            return blend.layerStack.length;
         };
 
         /**

@@ -23,25 +23,25 @@ require(['src/web/blend','src/web/dialog/alert','src/web/slider','src/web/Layer.
     
 
     //等到dom ready之后回调
-    var e;
-    if (typeof CustomEvent !== 'undefined') {
-        e = new CustomEvent('blendready', {
-          // detail: { slideNumber: Math.abs(slideNumber) },
-          bubbles: false,
-          cancelable: true
-        });
-    }else{
-        e  = document.createEvent("Event");
-        e.initEvent("blendready",false,false);
-    }
-        
- 
-    if (/complete|loaded|interactive/.test(document.readyState)) {
-        document.dispatchEvent(e);
-    } else {
-        document.addEventListener('DOMContentLoaded', function() {
-            document.dispatchEvent(e);
-        }, false);
-    }
+    // var e;
+    // if (typeof CustomEvent !== 'undefined') {
+    //     e = new CustomEvent('blendready', {
+    //       // detail: { slideNumber: Math.abs(slideNumber) },
+    //       bubbles: false,
+    //       cancelable: true
+    //     });
+    // }else{
+    //     e  = document.createEvent("Event");
+    //     e.initEvent("blendready",false,false);
+    // }
+         
+    // if (/complete|loaded|interactive/.test(document.readyState)) {
+    //     document.dispatchEvent(e);
+    // } else {
+    //     // DOMContentLoaded
+    //     document.addEventListener('DOMContentLoaded', function() {
+    //         document.dispatchEvent(e);
+    //     }, false);
+    // }
     
 },null,true);

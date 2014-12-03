@@ -97,8 +97,10 @@ define(
                 if (!argAry)argAry = this.id;
 
                 if (typeof argAry === 'undefined') {
-                    console.warn("cant find fire object. ");
-                    return ;
+                    // console.warn("cant find fire object. ");
+                    // argAry = 0;
+                    // return ;
+                    context = document;
                 }
 
                 if (typeof context === 'undefined' && typeof argAry !== 'undefined') {
@@ -131,10 +133,13 @@ define(
                 //仅在webcontrol中调用fire时，有这个方法
 
                 // 触发直接挂在对象上的方法，除了需要冒泡的方法需要注册on事件以外，其他事件一律不需要绑定on 方法
-                var handler = Blend.ui.get(argAry)[ type];
-                if (typeof handler === 'function') {
-                    handler.call(this, e);
+                if (typeof argAry !== 'undefined') {
+                    var handler = Blend.ui.get(argAry)[ type];
+                    if (typeof handler === 'function') {
+                        handler.call(this, e);
+                    }
                 }
+                
 
                 if (context) {
                     // e.srcElement = context;//修改无效
