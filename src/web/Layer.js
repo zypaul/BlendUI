@@ -60,6 +60,8 @@ define(
 
          * @param {String} options.ptrColor 文字颜色@todo
          * @param {Function} options.ptrFn 下拉刷新回调
+
+         * @param {number} lindex 判断layer是前进操作还是后退操作，默认是前进
          
          * @returns this
          */
@@ -265,7 +267,7 @@ define(
         /**
          * 激活页面
 
-            options.reverse:  support
+            options.reverse: me.reverse support
             options.fx: me.fx,
             options.duration: me.duration,
             options.timingFn: me.timingFn
@@ -308,13 +310,22 @@ define(
                     translationReverse = true;
                 }
             }
-            if ( this.reverse ) {
-                translationReverse = !translationReverse;
-            }
+
+
+
             var layerin;
             var layerinContext;
             var layerout = blend.activeLayer;
             var layeroutContext = blend.get(layerout.attr("data-blend-id"));
+
+            if ( options && options.reverse ) {
+                translationReverse = !translationReverse;
+            }else if (this.lindex) { //当前layer有lindex，则判断转出的是否具有，如果都具有进行lindex大小比较
+                // 如果转出的lindex较大，则方向变换
+                if (this.lindex && layeroutContext.lindex && layeroutContext.lindex > this.lindex) {
+                    translationReverse = !translationReverse;
+                }
+            }
 
             // var me = this;
             if (!this.myGroup || this.myGroup.isActive()){
