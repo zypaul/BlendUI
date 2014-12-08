@@ -3881,8 +3881,15 @@ define(
                     //data html 预处理
                     if (data.indexOf('<html') !== -1) {
                         
-                        data = $(".page",data).html();
+                        var data2 = $(".page",data);
+                        //HACK 所有的group要去掉.bar 
+                        if (context.myGroup) {
+                            data2.find(".bar").remove();
+                        }
+                        data = data2.html();
                     }
+                    
+                    
 
                     //动画中渲染页面会有bug发生，所以需要等待页面动画完成后进行渲染操作
                     if (context.hasState("slidein") ) {
@@ -4578,14 +4585,16 @@ define(
 
                 //这里的逻辑可能比较难以理解
                 //其实非常简单，当是layergroup的时候，layer.in，【不会】不会在layerStack中存储，而是替换，保持layergroup仅有一个layer在stack中
-                if (!me.myGroup || !me.myGroup.isActive()){//普通layer
+                // if (!me.myGroup || !me.myGroup.isActive()){//普通layer
+                if ( !me.myGroup ){//普通layer
                 }else{
                     blend.layerStack.pop();
                 }
-                blend.layerStack.push(blend.activeLayer);
-
+                
                 if (me.myGroup) {
                     me.myGroup.activeId = event.detail;
+                }else{
+                    blend.layerStack.push(blend.activeLayer);
                 }
 
             });
@@ -4684,7 +4693,7 @@ define(
 
             //动画的方向要判断
             var translationReverse = false;
-            if (this.myGroup && this.myGroup.main.id === blend.activeLayer.parent().attr("id") ) {//layer group 判断方向
+            if (this.myGroup && this.myGroup.isActive() ) {//layer group 判断方向
                 if ( blend.activeLayer.attr("data-blend-index") > this.index ) {
                     translationReverse = true;
                 }
@@ -4694,8 +4703,42 @@ define(
 
             var layerin;
             var layerinContext;
-            var layerout = blend.activeLayer;
-            var layeroutContext = blend.get(layerout.attr("data-blend-id"));
+            var layerout;// = blend.activeLayer;
+            var layeroutContext;// = blend.get(layerout.attr("data-blend-id"));
+
+            layerin = $(this.main);
+            layerinContext = this;
+
+            if ( this.myGroup ) {
+                var group = this.myGroup;
+                if (!this.myGroup.isActive()){
+                    layerin = $(group.main);
+                    layerinContext = group;
+                }
+                layerout = $(group.__layers[group.activeId].main);
+                layeroutContext = group.__layers[group.activeId];
+            }else{
+                layerout = blend.activeLayer;
+                layeroutContext = blend.get(layerout.attr("data-blend-id"));
+            }
+
+            // var me = this;
+            if (!this.myGroup || this.myGroup.isActive()){
+                // layerin = $(this.main);
+                // layerinContext = this;
+
+                
+
+            }else{//存在mygroup 并且 mygroup不是active的
+                layerin = $(this.myGroup.main);
+                layerinContext = this.myGroup;//SEE IT
+                if (layerinContext.activeId !== this.id) {//layergoup的activeid 需要变化
+                    //管理 activeid 放在了layer group里面
+                    $(layerinContext.__layers[layerinContext.activeId].main).addClass("page-on-right").removeClass('page-on-center');
+                    $(layerinContext.__layers[this.id].main).removeClass("page-on-right").addClass('page-on-center');
+                   
+                }
+            }
 
             if ( options && options.reverse ) {
                 translationReverse = !translationReverse;
@@ -4706,21 +4749,7 @@ define(
                 }
             }
 
-            // var me = this;
-            if (!this.myGroup || this.myGroup.isActive()){
-                layerin = $(this.main);
-                layerinContext = this;
-
-            }else{
-                layerin = $(this.myGroup.main);
-                layerinContext = this.myGroup;//SEE IT
-                if (layerinContext.activeId !== this.id) {//layergoup的activeid 需要变化
-                    //管理 activeid 放在了layer group里面
-                    $(layerinContext.__layers[layerinContext.activeId].main).addClass("page-on-right").removeClass('page-on-center');
-                    $(layerinContext.__layers[this.id].main).removeClass("page-on-right").addClass('page-on-center');
-                   
-                }
-            }
+            
             if (!this.myGroup || !layerout.parent().hasClass("layerGroup")) {// 普通layer不需要转出操作
                 // 特别的，添加是否子layer支持
                 // 当子layer时，不需要转出，其他情况还是需要转出
@@ -4769,14 +4798,23 @@ define(
                     layerout.removeClass(function(index,css){
                         return (css.match (/\bpage-from\S+/g) || []).join(' ');
                     });
-                    if ( blend.activeLayer.attr("data-blend-id") !== layerout.attr("data-blend-id") ){
-                        layerout.addClass("page-on-"+layerOutPosition);
-                    }
                     //执行居中操作
                     layerin.removeClass(function(index,css){
                         return (css.match (/\bpage-from\S+/g) || []).join(' ');
                     });
-                    if ( blend.activeLayer.attr("data-blend-id") === layerin.attr("data-blend-id") ){
+
+                    var checkActive;
+                    if ( me.myGroup ) {//重新获取一次，因为动画期间可能发生很多事情
+                        checkActive = $(me.myGroup.__layers[me.myGroup.activeId].main);
+                    }else{
+                        checkActive = blend.activeLayer;
+                    }
+                    
+                    if ( checkActive.attr("data-blend-id") !== layerout.attr("data-blend-id") ){
+                        layerout.addClass("page-on-"+layerOutPosition);
+                    }
+                    
+                    if ( checkActive.attr("data-blend-id") === layerin.attr("data-blend-id") ){
                         layerin.addClass('page-on-center');
                     }
                     
@@ -4788,7 +4826,12 @@ define(
             }
 
             //更新active page , 在 swipe api中，同样需要更新
-            blend.activeLayer = $(me.main);
+            if (!this.myGroup) {
+                blend.activeLayer = $(me.main);
+            }else{
+                me.myGroup.activeId = this.id;
+            }
+            
 
             return this;
         };
@@ -4854,9 +4897,10 @@ define(
                 inobj && inobj.removeState("slidein");
                 // me.dispose();
             };
-
-            blend.layerStack.pop();//pop立即更新，push 则要等待animate完成后更新， 原因是要确保in和out的次序不会错误
-
+            if ( !me.myGroup ) {
+                blend.layerStack.pop();//pop立即更新，push 则要等待animate完成后更新， 原因是要确保in和out的次序不会错误
+            }
+            
             //出场动画结束
             if (lowerAnimate) {
                 afteranimate();
@@ -5325,7 +5369,7 @@ define('src/web/LayerGroup.js',['require','./blend','../common/lib','./WebContro
         }else if (this.layerAnimate){
             $(this.main).addClass(this.layerAnimate);
         }
-        $(this.main).addClass('layerGroup page page-on-center').appendTo('.pages');
+        $(this.main).addClass('layerGroup page page-on-center').appendTo(blend.activeLayer);
         //处理定位
         
         $(this.main).css({top:me.top, left: me.left, right: me.right, bottom: me.bottom});
@@ -5463,7 +5507,7 @@ define('src/web/LayerGroup.js',['require','./blend','../common/lib','./WebContro
         var layerobj = new layer(layerOptions);
 
         this.__layers[layerOptions.id] = layerobj;
-        this.__layers[layerOptions.id] = layerobj;
+        // this.__layers[layerOptions.id] = layerobj;
         this._layers[layerOptions.id] = layerOptions;
 
         if (index===0) {
@@ -5497,7 +5541,10 @@ define('src/web/LayerGroup.js',['require','./blend','../common/lib','./WebContro
      * @return this 当前实例
      */
     LayerGroup.prototype.in = function() {
-        
+        if ( this.isActive() ) {
+            console.log("layergroup is already active.");
+            return ;
+        }
         this.__layers[this.activeId].in();
     };
 
@@ -5529,10 +5576,7 @@ define('src/web/LayerGroup.js',['require','./blend','../common/lib','./WebContro
         var afteranimate = function(){
             // me.dispose();
             me.fire('onhide');
-            //TODO add layer onhide events
       
-            // blend.activeLayer = parentlayer; //layergroup 不涉及activelayer，它只是layer的一部分
-
         };
         //出场动画结束
         if (lowerAnimate){ 

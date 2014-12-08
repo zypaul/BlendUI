@@ -186,7 +186,7 @@ define(function(require) {
         }else if (this.layerAnimate){
             $(this.main).addClass(this.layerAnimate);
         }
-        $(this.main).addClass('layerGroup page page-on-center').appendTo('.pages');
+        $(this.main).addClass('layerGroup page page-on-center').appendTo(blend.activeLayer);
         //处理定位
         
         $(this.main).css({top:me.top, left: me.left, right: me.right, bottom: me.bottom});
@@ -324,7 +324,7 @@ define(function(require) {
         var layerobj = new layer(layerOptions);
 
         this.__layers[layerOptions.id] = layerobj;
-        this.__layers[layerOptions.id] = layerobj;
+        // this.__layers[layerOptions.id] = layerobj;
         this._layers[layerOptions.id] = layerOptions;
 
         if (index===0) {
@@ -358,7 +358,10 @@ define(function(require) {
      * @return this 当前实例
      */
     LayerGroup.prototype.in = function() {
-        
+        if ( this.isActive() ) {
+            console.log("layergroup is already active.");
+            return ;
+        }
         this.__layers[this.activeId].in();
     };
 
@@ -390,10 +393,7 @@ define(function(require) {
         var afteranimate = function(){
             // me.dispose();
             me.fire('onhide');
-            //TODO add layer onhide events
       
-            // blend.activeLayer = parentlayer; //layergroup 不涉及activelayer，它只是layer的一部分
-
         };
         //出场动画结束
         if (lowerAnimate){ 

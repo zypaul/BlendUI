@@ -36,8 +36,15 @@ define(
                     //data html 预处理
                     if (data.indexOf('<html') !== -1) {
                         
-                        data = $(".page",data).html();
+                        var data2 = $(".page",data);
+                        //HACK 所有的group要去掉.bar 
+                        if (context.myGroup) {
+                            data2.find(".bar").remove();
+                        }
+                        data = data2.html();
                     }
+                    
+                    
 
                     //动画中渲染页面会有bug发生，所以需要等待页面动画完成后进行渲染操作
                     if (context.hasState("slidein") ) {
