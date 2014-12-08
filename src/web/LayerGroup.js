@@ -298,8 +298,8 @@ define(function(require) {
             console.log("layerid:"+layerOptions.id+" in group has already exist...");
             
             if (layerOptions.url && this._layers[layerOptions.id].url !== layerOptions.url) {
-
-                this.__layers[layerOptions.id].reload(layerOptions.url);
+                //暂时不考虑刷新问题
+                // this.__layers[layerOptions.id].reload(layerOptions.url);
 
             }
 
