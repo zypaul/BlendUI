@@ -2467,11 +2467,15 @@ define('src/web/blend',["require",'./../common/lib',"./configs","./events",'../.
          * @property {Object} Api接口
          */
         blend.layerInit = function(layerId,callback){
-            if (layerId == '0') {
-                blend.activeLayer = $(".page:first");
+            // if (layerId == '0') {
+            //     blend.activeLayer = $(".page:first");
+            //     callback && callback();
+            // }
+            cbs[layerId] = callback;
+
+            if (blend.get(layerId) && blend.get(layerId).isRender() ){
                 callback && callback();
             }
-            cbs[layerId] = callback;
         };
         document.addEventListener("onrender",function(eve){
             if (eve.detail && cbs[eve.detail]) {
@@ -2479,6 +2483,10 @@ define('src/web/blend',["require",'./../common/lib',"./configs","./events",'../.
                 cbs[eve.detail].call(blend.get(eve.detail),blend.get(eve.detail).main);
                 
             }
+            if (blend.get(eve.detail)) {
+                blend.get(eve.detail).isRender(true);
+            }
+            
         });
 
         blend.ready = function(cb){
@@ -3313,6 +3321,13 @@ define(
 
         WebControl.prototype.fire = events.fire;
         
+        WebControl.prototype.isRender = function(boolrender){
+            if (typeof boolrender !== 'undefined') {
+                this.isRendered = boolrender;
+            }else{
+                return this.isRendered?this.isRendered:false;
+            }
+        };
 
         WebControl.prototype.animationEnd = function(callback) {
             var events = ['webkitAnimationEnd', 'OAnimationEnd', 'MSAnimationEnd', 'animationend'],
@@ -5383,7 +5398,6 @@ define('src/web/LayerGroup.js',['require','./blend','../common/lib','./WebContro
 
         for (var id in this._layers) {
             this.add(this._layers[id]);
-
         }
 
         return this;
@@ -5397,9 +5411,6 @@ define('src/web/LayerGroup.js',['require','./blend','../common/lib','./WebContro
      */
     LayerGroup.prototype.active = function(layerId ) {
 
-        // console.log("in active");
-
-        
         groupApi.showLayer(this.id, layerId, this);
         return this;
     };

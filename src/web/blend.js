@@ -56,11 +56,15 @@ define(["require",'./../common/lib',"./configs","./events",'../../usecase/js/lib
          * @property {Object} Api接口
          */
         blend.layerInit = function(layerId,callback){
-            if (layerId == '0') {
-                blend.activeLayer = $(".page:first");
+            // if (layerId == '0') {
+            //     blend.activeLayer = $(".page:first");
+            //     callback && callback();
+            // }
+            cbs[layerId] = callback;
+
+            if (blend.get(layerId) && blend.get(layerId).isRender() ){
                 callback && callback();
             }
-            cbs[layerId] = callback;
         };
         document.addEventListener("onrender",function(eve){
             if (eve.detail && cbs[eve.detail]) {
@@ -68,6 +72,10 @@ define(["require",'./../common/lib',"./configs","./events",'../../usecase/js/lib
                 cbs[eve.detail].call(blend.get(eve.detail),blend.get(eve.detail).main);
                 
             }
+            if (blend.get(eve.detail)) {
+                blend.get(eve.detail).isRender(true);
+            }
+            
         });
 
         blend.ready = function(cb){

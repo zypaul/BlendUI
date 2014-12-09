@@ -200,7 +200,6 @@ define(function(require) {
 
         for (var id in this._layers) {
             this.add(this._layers[id]);
-
         }
 
         return this;
@@ -214,9 +213,6 @@ define(function(require) {
      */
     LayerGroup.prototype.active = function(layerId ) {
 
-        // console.log("in active");
-
-        
         groupApi.showLayer(this.id, layerId, this);
         return this;
     };

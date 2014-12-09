@@ -42,6 +42,13 @@ define(
 
         WebControl.prototype.fire = events.fire;
         
+        WebControl.prototype.isRender = function(boolrender){
+            if (typeof boolrender !== 'undefined') {
+                this.isRendered = boolrender;
+            }else{
+                return this.isRendered?this.isRendered:false;
+            }
+        };
 
         WebControl.prototype.animationEnd = function(callback) {
             var events = ['webkitAnimationEnd', 'OAnimationEnd', 'MSAnimationEnd', 'animationend'],
