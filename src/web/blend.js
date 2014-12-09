@@ -56,14 +56,11 @@ define(["require",'./../common/lib',"./configs","./events",'../../usecase/js/lib
          * @property {Object} Api接口
          */
         blend.layerInit = function(layerId,callback){
-            // if (layerId == '0') {
-            //     blend.activeLayer = $(".page:first");
-            //     callback && callback();
-            // }
+            
             cbs[layerId] = callback;
 
             if (blend.get(layerId) && blend.get(layerId).isRender() ){
-                callback && callback();
+                callback && callback.call(blend.get(layerId),blend.get(layerId).main);
             }
         };
         document.addEventListener("onrender",function(eve){
