@@ -72,7 +72,7 @@ define(
         api.showLayer = function(groupId, layerId, context) {//groupId no use
 
             if (context.__layers[layerId]) {
-                context.__layers[layerId].in();
+                context.__layers[layerId]["in"]();
 
                 context.activeId = layerId;
             }else {

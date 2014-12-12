@@ -141,7 +141,7 @@ define(
                 }
                 
             });
-            options.active && me.in();
+            options.active && me["in"]();
             // console.log("options...",options.index)
             if (typeof options.index !== 'undefined'){
                 this.main.setAttribute('data-blend-index', options.index);
@@ -276,7 +276,7 @@ define(
             
          * @returns this 当前实例
          */
-        Layer.prototype.in = function(options){
+        Layer.prototype["in"] = function(options){
             
 
             //有一种情况不需要入场动画，比如：自己转自己

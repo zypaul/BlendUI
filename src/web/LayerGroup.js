@@ -142,7 +142,7 @@ define(function(require) {
             //监听事件
             me._initEvent();
 
-            options.active && me.in();
+            options.active && me["in"]();
         });
         me.once("renderfail",function(){
             //提示用户加载失败
@@ -299,7 +299,7 @@ define(function(require) {
 
             }
 
-            this.__layers[layerOptions.id].in();
+            this.__layers[layerOptions.id]["in"]();
             return ;
         }
 
@@ -353,12 +353,12 @@ define(function(require) {
      * 激活页面组
      * @return this 当前实例
      */
-    LayerGroup.prototype.in = function() {
+    LayerGroup.prototype["in"] = function() {
         if ( this.isActive() ) {
             console.log("layergroup is already active.");
             return ;
         }
-        this.__layers[this.activeId].in();
+        this.__layers[this.activeId]["in"]();
     };
 
     /**

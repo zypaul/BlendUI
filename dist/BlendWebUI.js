@@ -4539,7 +4539,7 @@ define(
                 }
                 
             });
-            options.active && me.in();
+            options.active && me["in"]();
             // console.log("options...",options.index)
             if (typeof options.index !== 'undefined'){
                 this.main.setAttribute('data-blend-index', options.index);
@@ -4674,7 +4674,7 @@ define(
             
          * @returns this 当前实例
          */
-        Layer.prototype.in = function(options){
+        Layer.prototype["in"] = function(options){
             
 
             //有一种情况不需要入场动画，比如：自己转自己
@@ -5143,7 +5143,7 @@ define(
         api.showLayer = function(groupId, layerId, context) {//groupId no use
 
             if (context.__layers[layerId]) {
-                context.__layers[layerId].in();
+                context.__layers[layerId]["in"]();
 
                 context.activeId = layerId;
             }else {
@@ -5337,7 +5337,7 @@ define('src/web/LayerGroup.js',['require','./blend','../common/lib','./WebContro
             //监听事件
             me._initEvent();
 
-            options.active && me.in();
+            options.active && me["in"]();
         });
         me.once("renderfail",function(){
             //提示用户加载失败
@@ -5494,7 +5494,7 @@ define('src/web/LayerGroup.js',['require','./blend','../common/lib','./WebContro
 
             }
 
-            this.__layers[layerOptions.id].in();
+            this.__layers[layerOptions.id]["in"]();
             return ;
         }
 
@@ -5548,12 +5548,12 @@ define('src/web/LayerGroup.js',['require','./blend','../common/lib','./WebContro
      * 激活页面组
      * @return this 当前实例
      */
-    LayerGroup.prototype.in = function() {
+    LayerGroup.prototype["in"] = function() {
         if ( this.isActive() ) {
             console.log("layergroup is already active.");
             return ;
         }
-        this.__layers[this.activeId].in();
+        this.__layers[this.activeId]["in"]();
     };
 
     /**
