@@ -566,7 +566,7 @@ define(
                 }
             }
             return false;
-        }
+        };
 
         /**
          * string相关的lib方法
@@ -2927,31 +2927,31 @@ define(
             /**
              * 显示控件
              */
-            in : function() {
-                this.removeState('hidden');
-                this.fire('show');
-            },
+            // in : function() {
+            //     this.removeState('hidden');
+            //     this.fire('show');
+            // },
 
-            /**
-             * 隐藏控件
-             */
-            out: function() {
-                this.addState('hidden');
-                this.fire('hide');
-            },
+            // /**
+            //  * 隐藏控件
+            //  */
+            // out: function() {
+            //     this.addState('hidden');
+            //     this.fire('hide');
+            // },
 
-            /**
-             * 切换控件的显隐状态
-             */
-            toggle: function() {
-                this[this.isHidden() ? 'in' : 'out']();
-            },
-            /**
-             * 判断控件是否隐藏
-             */
-            isHidden: function() {
-                return this.hasState('hidden');
-            },
+            // *
+            //  * 切换控件的显隐状态
+             
+            // toggle: function() {
+            //     this[this.isHidden() ? 'in' : 'out']();
+            // },
+            // /**
+            //  * 判断控件是否隐藏
+            //  */
+            // isHidden: function() {
+            //     return this.hasState('hidden');
+            // },
 
             /**
              * 为控件添加状态

@@ -42,7 +42,7 @@ define(
                 }
             }
             return false;
-        }
+        };
 
         /**
          * string相关的lib方法

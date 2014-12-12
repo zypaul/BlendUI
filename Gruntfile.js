@@ -30,10 +30,10 @@ module.exports = function (grunt) {
             }
         },
         jshint : {
-            files: ['Gruntfile.js','src/web/**/*.js','src/hybrid/**/*.js'],
+            files: ['Gruntfile.js','src/web/**/*.js','src/common/**/*.js'],
             options: {
                 '-W083' : true,//for循环中function函数
-                '-W054' : true,//new Function
+                // '-W054' : true,//new Function
                 '-W061' : true,
                 '-W030' : true,
                 sub     : true,
@@ -74,6 +74,7 @@ module.exports = function (grunt) {
             files: [
               // {expand: true, src: ['dist/BlendWebUI.js'], dest: '../MobileH5/Trunk/elongfront/lib/'},
               {expand: false, src: ['dist/BlendWebUI.js'], dest: '../MobileH5/Trunk/elongfront/lib/BlendWebUI.js'},
+              {expand: false, src: ['dist/BlendWebUI.min.js'], dest: '../MobileH5/Trunk/elongfront/lib/BlendWebUI.min.js'},
             ],
           },
         },
@@ -103,7 +104,9 @@ module.exports = function (grunt) {
     grunt.registerTask('web', [
         'jshint',
         'requirejs:web',
+        'uglify:web',
         'copy',
+        
         // 'uglify:web'
     ]);
     grunt.registerTask('test',[
