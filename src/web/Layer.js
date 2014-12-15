@@ -181,9 +181,11 @@ define(
             me.on('onrender',function(event){
                 var id = event['detail'];
                 var dom = Blend.ui.get(id).main;
-                
                 loader.runScript(dom);
 
+                me.stopLoading();
+                me.removeState("get");
+                me.addState("got");
             });
 
             me.on("renderfailed",function(event){
@@ -194,8 +196,6 @@ define(
             // me.onshow2 = me.onshow;
             me.on('onshow',function(event){
 
-                
-                me.stopLoading();
 
                 //这里的逻辑可能比较难以理解
                 //其实非常简单，当是layergroup的时候，layer.in，【不会】不会在layerStack中存储，而是替换，保持layergroup仅有一个layer在stack中
@@ -289,6 +289,12 @@ define(
                 console.log("this layer is sliding in.");
                 this.removeState("slidein");
                 return ;
+            }
+
+            if (options && options.url && options.url !== this.url) {
+                console.log("layer url changed to..." + options.url);
+                this.setUrl(options.url);// = options.url;
+                this.removeState("got");
             }
 
             // 判断是否render了,autoload的会自动render，否则不会

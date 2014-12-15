@@ -38,7 +38,7 @@ define(
     loader.runScript = function(dom){
         if ($("script",dom).length){
             $("script",dom).each(function(){
-                eval($(this).html());
+                window.eval($(this).html());
             });
         }
 

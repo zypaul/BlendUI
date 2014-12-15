@@ -108,7 +108,7 @@ define(
                 main.setAttribute('data-blend-id', this.id);
 
                 if (this.url) {
-                    main.setAttribute("data-url",this.url);
+                    main.setAttribute('data-url',this.url);
                 }
 
 
@@ -255,7 +255,10 @@ define(
             isDisabled: function() {
                 return this.hasState('disabled');
             },
-
+            setUrl: function(url) {
+                this.url = url;
+                this.main.setAttribute("data-url",url);
+            },
             /**
              * 显示控件
              */
