@@ -88,8 +88,7 @@ define(
                 var main = document.createElement('div');
 
                 this.setMainAttr(main);
-                //console.log(main.outerHTML);
-
+                
                 return main;
             },
 

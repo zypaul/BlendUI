@@ -2761,8 +2761,7 @@ define(
                 var main = document.createElement('div');
 
                 this.setMainAttr(main);
-                //console.log(main.outerHTML);
-
+                
                 return main;
             },
 
@@ -2779,7 +2778,7 @@ define(
                 }
 
                 // 为控件主元素添加id
-                // if (!main.id || ) {
+                // if (!main.id || ) {// 可能有clone node的出现，所以这里layer的id不会被复用，全部新生成
                     main.id = lib.getUniqueID();
                 // }
 
@@ -4519,6 +4518,11 @@ define(
             var me = this;
 
             $(this.main).addClass('page');
+
+            if (!this.myGroup && this.main.innerHTML==='') {
+                this.main.innerHTML = '<header class="bar bar-nav"><a class="icon icon-left-nav pull-left" data-rel="back" href=""></a>'+
+                '<a class="icon icon-phone pull-right"></a><h1 class="title"></h1></header>';
+            }
 
             layerApi.resume(this);
 

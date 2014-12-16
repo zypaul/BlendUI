@@ -109,6 +109,11 @@ define(
 
             $(this.main).addClass('page');
 
+            if (!this.myGroup && this.main.innerHTML==='') {
+                this.main.innerHTML = '<header class="bar bar-nav"><a class="icon icon-left-nav pull-left" data-rel="back" href=""></a>'+
+                '<a class="icon icon-phone pull-right"></a><h1 class="title"></h1></header>';
+            }
+
             layerApi.resume(this);
 
             // if (!$('#'+ this.main.id).length) {
