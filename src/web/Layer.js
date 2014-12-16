@@ -106,15 +106,20 @@ define(
             //更新逻辑，首先 new过的layer都会append到container上，但是，渲染模板的时候，会根据是否当前有动画，
             //如果没有正在动画，则直接渲染，有，则等待动画完成后渲染，防止动画过程中渲染页面(涉及到ajax取模板和数据的流程)
             var me = this;
-            if (!$('#'+ this.main.id).length) {
-                if ( this.myGroup ) {//获取当前layer的
-                    console.log("layer group index..." + this.myGroup.index);
-                    container = $(this.myGroup.main) ;
-                }else{
-                    container = $(".pages");
-                }
-                $(this.main).appendTo(container);
-            }
+
+            $(this.main).addClass('page');
+
+            layerApi.resume(this);
+
+            // if (!$('#'+ this.main.id).length) {
+            //     if ( this.myGroup ) {//获取当前layer的
+            //         console.log("layer group index..." + this.myGroup.index);
+            //         container = $(this.myGroup.main) ;
+            //     }else{
+            //         container = $(".pages");
+            //     }
+            //     $(this.main).appendTo(container);
+            // }
 
             if (options.main) {//本页已经render
                 this.addState("got");
@@ -266,7 +271,7 @@ define(
             //3. set pullToRefresh
             
             //4. set  position before animate.
-            $(this.main).addClass('page page-on-right');
+            // $(this.main).addClass('page page-on-right');
 
             return this;
         };
@@ -311,8 +316,8 @@ define(
 
             // this.fire("changeUrl",this.id);
             
-            //判断是否页面中已经存在，如果不存在，则插入到container中
-            layerApi.resume(this);
+            //判断是否页面中已经存在，如果不存在，则插入到container中,_init 时，已经插入过了
+            // layerApi.resume(this);
 
             var me = this;
             
@@ -549,7 +554,7 @@ define(
          * @param {String} url 刷新页面时所用的url
          * @returns this
          */
-        Layer.prototype.reload = function(url){
+        Layer.prototype.reload = function(url,callback){
             //reload
             //1. destroy
             // this.destroy();
@@ -568,12 +573,11 @@ define(
                     
             layerApi.prepare(this.id , obj, this);
 
-            //清空main
-            $("#"+this.main.id).html('');
-
-
+            if (typeof callback === 'function') {
+                this.once("onrender",callback);
+            }
             //贴上prepare的内容
-            layerApi.resume(this);
+            // layerApi.resume(this);
 
             return this;
         };

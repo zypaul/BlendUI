@@ -536,7 +536,7 @@ define(
         var lang = require('./lib/lang');
         var string = require('./lib/string');
 
-        var count = 0x861005;
+        var count = 22;
 
         /**
          * 获得全局唯一的ID
@@ -544,7 +544,7 @@ define(
          * @param {string} prefix 前缀
          */
         lib.getUniqueID = function(prefix) {
-            prefix = prefix || 'BlendUI';
+            prefix = prefix || 'uniq';
             return prefix + count++;
         };
 
@@ -2770,7 +2770,7 @@ define(
                 if (!main) {
                     return false;
                 }
-                main = main;
+                // main = main;
                 main.setAttribute('data-blend', this.getType());
                 main.setAttribute('data-blend-id', this.id);
 
@@ -2778,6 +2778,10 @@ define(
                     main.setAttribute('data-url',this.url);
                 }
 
+                // 为控件主元素添加id
+                // if (!main.id || ) {
+                    main.id = lib.getUniqueID();
+                // }
 
                 //for web set default css
                 //layer 可以添加page
@@ -2796,11 +2800,6 @@ define(
                 this.addState("get");//会在render后变成got
                 
                 this.fire('beforerender', this.id);
-
-                // 为控件主元素添加id
-                if (!this.main.id) {
-                    this.main.id = lib.getUniqueID();
-                }
 
                 var me = this;
                 //子控件实现这个, render 成功与否在paint里面实现
@@ -3946,18 +3945,26 @@ define(
 
         api.startPullRefresh = function(context) {
             //0.初始化dom,挂载在page-content上
-            var container = $(context.main).find('.page-content');
-            if (!container.length) {
-                console.log('pull to refresh should has .page-content');
-                return false;
-            }
-            container.addClass("pull-to-refresh-content");
-            if (!$(".pull-to-refresh-layer",context.main).length){
-                $(".page-content",context.main).before('<div class="pull-to-refresh-layer"> <div class="preloader"></div><div class="pull-to-refresh-arrow"></div><div class="pull-to-refresh-label"></div> </div>');
-            }
+            var container,tipLayer;
+            var init = function(){
+                container = $(context.main).find('.page-content');
+                if (!container.length) {
+                    console.log('pull to refresh should has .page-content');
+                    return false;
+                }
+                container.addClass("pull-to-refresh-content");
+                if (!$(".pull-to-refresh-layer",context.main).length){
+                    $(".page-content",context.main).before('<div class="pull-to-refresh-layer"> <div class="preloader"></div><div class="pull-to-refresh-arrow"></div><div class="pull-to-refresh-label"></div> </div>');
+                }
+                tipLayer = $(".pull-to-refresh-layer",context.main).css("padding-top",container.css("padding-top"));//padding-top
+                tipLayer.css("margin-top",container.position().top);
+            };
 
-            var tipLayer = $(".pull-to-refresh-layer",context.main).css("padding-top",container.css("padding-top"));//padding-top
-            tipLayer.css("margin-top",container.position().top);
+            
+            init();
+
+            if ( !container.length ) return;
+            
             var isTouched,
                 isMoved,
                 touchesStart = {},
@@ -3990,6 +3997,10 @@ define(
 
             pullEvents.handleTouchStart = function(e)  {
                 if (isTouched) return false;
+                if (container.parent().length === 0) {//container已经不在页面dom中了，而是命中了zepto的缓存
+                    
+                    init();
+                }
                 if (container.hasClass("refreshing")) {
                     return false;
                 }else{
@@ -4506,15 +4517,20 @@ define(
             //更新逻辑，首先 new过的layer都会append到container上，但是，渲染模板的时候，会根据是否当前有动画，
             //如果没有正在动画，则直接渲染，有，则等待动画完成后渲染，防止动画过程中渲染页面(涉及到ajax取模板和数据的流程)
             var me = this;
-            if (!$('#'+ this.main.id).length) {
-                if ( this.myGroup ) {//获取当前layer的
-                    console.log("layer group index..." + this.myGroup.index);
-                    container = $(this.myGroup.main) ;
-                }else{
-                    container = $(".pages");
-                }
-                $(this.main).appendTo(container);
-            }
+
+            $(this.main).addClass('page');
+
+            layerApi.resume(this);
+
+            // if (!$('#'+ this.main.id).length) {
+            //     if ( this.myGroup ) {//获取当前layer的
+            //         console.log("layer group index..." + this.myGroup.index);
+            //         container = $(this.myGroup.main) ;
+            //     }else{
+            //         container = $(".pages");
+            //     }
+            //     $(this.main).appendTo(container);
+            // }
 
             if (options.main) {//本页已经render
                 this.addState("got");
@@ -4666,7 +4682,7 @@ define(
             //3. set pullToRefresh
             
             //4. set  position before animate.
-            $(this.main).addClass('page page-on-right');
+            // $(this.main).addClass('page page-on-right');
 
             return this;
         };
@@ -4711,8 +4727,8 @@ define(
 
             // this.fire("changeUrl",this.id);
             
-            //判断是否页面中已经存在，如果不存在，则插入到container中
-            layerApi.resume(this);
+            //判断是否页面中已经存在，如果不存在，则插入到container中,_init 时，已经插入过了
+            // layerApi.resume(this);
 
             var me = this;
             
@@ -4949,7 +4965,7 @@ define(
          * @param {String} url 刷新页面时所用的url
          * @returns this
          */
-        Layer.prototype.reload = function(url){
+        Layer.prototype.reload = function(url,callback){
             //reload
             //1. destroy
             // this.destroy();
@@ -4968,12 +4984,11 @@ define(
                     
             layerApi.prepare(this.id , obj, this);
 
-            //清空main
-            $("#"+this.main.id).html('');
-
-
+            if (typeof callback === 'function') {
+                this.once("onrender",callback);
+            }
             //贴上prepare的内容
-            layerApi.resume(this);
+            // layerApi.resume(this);
 
             return this;
         };

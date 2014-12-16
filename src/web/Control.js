@@ -97,7 +97,7 @@ define(
                 if (!main) {
                     return false;
                 }
-                main = main;
+                // main = main;
                 main.setAttribute('data-blend', this.getType());
                 main.setAttribute('data-blend-id', this.id);
 
@@ -105,6 +105,10 @@ define(
                     main.setAttribute('data-url',this.url);
                 }
 
+                // 为控件主元素添加id
+                // if (!main.id || ) {// 可能有clone node的出现，所以这里layer的id不会被复用，全部新生成
+                    main.id = lib.getUniqueID();
+                // }
 
                 //for web set default css
                 //layer 可以添加page
@@ -123,11 +127,6 @@ define(
                 this.addState("get");//会在render后变成got
                 
                 this.fire('beforerender', this.id);
-
-                // 为控件主元素添加id
-                if (!this.main.id) {
-                    this.main.id = lib.getUniqueID();
-                }
 
                 var me = this;
                 //子控件实现这个, render 成功与否在paint里面实现

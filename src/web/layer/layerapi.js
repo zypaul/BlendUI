@@ -87,18 +87,26 @@ define(
 
         api.startPullRefresh = function(context) {
             //0.初始化dom,挂载在page-content上
-            var container = $(context.main).find('.page-content');
-            if (!container.length) {
-                console.log('pull to refresh should has .page-content');
-                return false;
-            }
-            container.addClass("pull-to-refresh-content");
-            if (!$(".pull-to-refresh-layer",context.main).length){
-                $(".page-content",context.main).before('<div class="pull-to-refresh-layer"> <div class="preloader"></div><div class="pull-to-refresh-arrow"></div><div class="pull-to-refresh-label"></div> </div>');
-            }
+            var container,tipLayer;
+            var init = function(){
+                container = $(context.main).find('.page-content');
+                if (!container.length) {
+                    console.log('pull to refresh should has .page-content');
+                    return false;
+                }
+                container.addClass("pull-to-refresh-content");
+                if (!$(".pull-to-refresh-layer",context.main).length){
+                    $(".page-content",context.main).before('<div class="pull-to-refresh-layer"> <div class="preloader"></div><div class="pull-to-refresh-arrow"></div><div class="pull-to-refresh-label"></div> </div>');
+                }
+                tipLayer = $(".pull-to-refresh-layer",context.main).css("padding-top",container.css("padding-top"));//padding-top
+                tipLayer.css("margin-top",container.position().top);
+            };
 
-            var tipLayer = $(".pull-to-refresh-layer",context.main).css("padding-top",container.css("padding-top"));//padding-top
-            tipLayer.css("margin-top",container.position().top);
+            
+            init();
+
+            if ( !container.length ) return;
+            
             var isTouched,
                 isMoved,
                 touchesStart = {},
@@ -131,6 +139,10 @@ define(
 
             pullEvents.handleTouchStart = function(e)  {
                 if (isTouched) return false;
+                if (container.parent().length === 0) {//container已经不在页面dom中了，而是命中了zepto的缓存
+                    
+                    init();
+                }
                 if (container.hasClass("refreshing")) {
                     return false;
                 }else{

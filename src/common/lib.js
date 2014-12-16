@@ -12,7 +12,7 @@ define(
         var lang = require('./lib/lang');
         var string = require('./lib/string');
 
-        var count = 0x861005;
+        var count = 22;
 
         /**
          * 获得全局唯一的ID
@@ -20,7 +20,7 @@ define(
          * @param {string} prefix 前缀
          */
         lib.getUniqueID = function(prefix) {
-            prefix = prefix || 'BlendUI';
+            prefix = prefix || 'uniq';
             return prefix + count++;
         };
 
