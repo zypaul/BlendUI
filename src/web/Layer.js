@@ -105,7 +105,7 @@ define(
             //before that , append dom in
             //更新逻辑，首先 new过的layer都会append到container上，但是，渲染模板的时候，会根据是否当前有动画，
             //如果没有正在动画，则直接渲染，有，则等待动画完成后渲染，防止动画过程中渲染页面(涉及到ajax取模板和数据的流程)
-
+            var me = this;
             if (!$('#'+ this.main.id).length) {
                 if ( this.myGroup ) {//获取当前layer的
                     console.log("layer group index..." + this.myGroup.index);
@@ -115,10 +115,17 @@ define(
                 }
                 $(this.main).appendTo(container);
             }
+
+            if (options.main) {//本页已经render
+                this.addState("got");
+                blend.ready(function(){
+                    me.fire('onrender');
+                });
+            }
             
             //监听事件
             this._initEvent();
-            var me = this;
+            // var me = this;
             
             if (!this.url) {
                 console.log("###No url for render###");

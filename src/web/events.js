@@ -61,11 +61,16 @@ define(
             //事件on
 
             if (typeof callback === 'function') {
-                var cb = function() {
+
+                if (type === "onrender" && this && this.isRender && this.isRender()){
                     callback.apply(context, arguments);
-                    context.removeEventListener(type, cb, false);
-                };
-                context.addEventListener(type, cb, false);
+                }else{
+                    var cb = function() {
+                        callback.apply(context, arguments);
+                        context.removeEventListener(type, cb, false);
+                    };
+                    context.addEventListener(type, cb, false);
+                }
             }
 
         };
