@@ -109,6 +109,11 @@ define(function(require) {
         if (!me.layers || !me.layers.length) {
             return;
         }
+        if (this.routing === false) {
+            this.main.setAttribute('data-routing','false');
+        }else{
+            this.main.setAttribute('data-routing','true');//by default
+        }
 
         for (var i = 0, len = me.layers.length; i < len; i++) {
             if (!me.layers[i].id) {
@@ -134,6 +139,8 @@ define(function(require) {
         me.__layers = {};//
 
         me.activeId = activeId || me.layers[0].id;
+
+        me.layerArray = [];//for 
 
 
         /* alert(me.get('activeId')); */
@@ -330,9 +337,9 @@ define(function(require) {
         this._layers[layerOptions.id] = layerOptions;
 
         if (index===0) {
-            this.layers.unshift(layerobj);
+            this.layerArray.unshift(layerobj);
         }else{
-             this.layers.push(layerobj);
+             this.layerArray.push(layerobj);
         }
 
         //安装好容器

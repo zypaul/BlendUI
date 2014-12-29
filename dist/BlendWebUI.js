@@ -2776,6 +2776,7 @@ define(
                 if (this.url) {
                     main.setAttribute('data-url',this.url);
                 }
+                
 
                 // 为控件主元素添加id
                 // if (!main.id || ) {// 可能有clone node的出现，所以这里layer的id不会被复用，全部新生成
@@ -3934,12 +3935,15 @@ define(
             var container;
             if ( context.myGroup ) {//获取当前layer的
                 console.log("in layer group..." + context.myGroup.index);
-                container = $(context.myGroup.main) ;
+                container = context.myGroup.main;
             }else{
-                container = $(".pages");
+                container = document.body.firstElementChild;//.pages 
             }
+            console.log("resume...."+context.main.id);
             if (!$('#'+ context.main.id).length) {
-                $(context.main).appendTo(container);
+                    // console.log("resume. in..."+context.main.id);
+                // $(context.main).appendTo(container);//这里居然有bug。。。 zepto！！！！
+                container.appendChild(context.main);
             }
 
         };
@@ -4746,7 +4750,7 @@ define(
             //动画的方向要判断
             var translationReverse = false;
             if (this.myGroup && this.myGroup.isActive() ) {//layer group 判断方向
-                if ( blend.activeLayer.attr("data-blend-index") > this.index ) {
+                if ( this.myGroup.idtoindex(this.myGroup.activeId) > this.index ) {
                     translationReverse = true;
                 }
             }
@@ -5352,6 +5356,11 @@ define('src/web/LayerGroup.js',['require','./blend','../common/lib','./WebContro
         if (!me.layers || !me.layers.length) {
             return;
         }
+        if (this.routing === false) {
+            this.main.setAttribute('data-routing','false');
+        }else{
+            this.main.setAttribute('data-routing','true');//by default
+        }
 
         for (var i = 0, len = me.layers.length; i < len; i++) {
             if (!me.layers[i].id) {
@@ -5377,6 +5386,8 @@ define('src/web/LayerGroup.js',['require','./blend','../common/lib','./WebContro
         me.__layers = {};//
 
         me.activeId = activeId || me.layers[0].id;
+
+        me.layerArray = [];//for 
 
 
         /* alert(me.get('activeId')); */
@@ -5573,9 +5584,9 @@ define('src/web/LayerGroup.js',['require','./blend','../common/lib','./WebContro
         this._layers[layerOptions.id] = layerOptions;
 
         if (index===0) {
-            this.layers.unshift(layerobj);
+            this.layerArray.unshift(layerobj);
         }else{
-             this.layers.push(layerobj);
+             this.layerArray.push(layerobj);
         }
 
         //安装好容器

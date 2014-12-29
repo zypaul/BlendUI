@@ -331,7 +331,7 @@ define(
             //动画的方向要判断
             var translationReverse = false;
             if (this.myGroup && this.myGroup.isActive() ) {//layer group 判断方向
-                if ( blend.activeLayer.attr("data-blend-index") > this.index ) {
+                if ( this.myGroup.idtoindex(this.myGroup.activeId) > this.index ) {
                     translationReverse = true;
                 }
             }

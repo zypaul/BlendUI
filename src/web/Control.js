@@ -103,6 +103,7 @@ define(
                 if (this.url) {
                     main.setAttribute('data-url',this.url);
                 }
+                
 
                 // 为控件主元素添加id
                 // if (!main.id || ) {// 可能有clone node的出现，所以这里layer的id不会被复用，全部新生成

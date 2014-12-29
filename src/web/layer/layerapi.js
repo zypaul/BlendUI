@@ -72,12 +72,15 @@ define(
             var container;
             if ( context.myGroup ) {//获取当前layer的
                 console.log("in layer group..." + context.myGroup.index);
-                container = $(context.myGroup.main) ;
+                container = context.myGroup.main;
             }else{
-                container = $(".pages");
+                container = document.body.firstElementChild;//.pages 
             }
+            console.log("resume...."+context.main.id);
             if (!$('#'+ context.main.id).length) {
-                $(context.main).appendTo(container);
+                    // console.log("resume. in..."+context.main.id);
+                // $(context.main).appendTo(container);//这里居然有bug。。。 zepto！！！！
+                container.appendChild(context.main);
             }
 
         };
