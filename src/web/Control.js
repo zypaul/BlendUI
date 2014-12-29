@@ -122,6 +122,11 @@ define(
              */
             render: function() {
                 //created, webviewready, pageonload, disposed
+                // 判断是否render了,autoload的会自动render，否则不会
+                if (this.hasState("got")|| this.hasState("get")) {// ['','get','got']
+                    // this.render();//auto has get state
+                    return ;
+                }
                 
                 this.addState("get");//会在render后变成got
                 

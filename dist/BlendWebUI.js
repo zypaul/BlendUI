@@ -2795,6 +2795,11 @@ define(
              */
             render: function() {
                 //created, webviewready, pageonload, disposed
+                // 判断是否render了,autoload的会自动render，否则不会
+                if (this.hasState("got")|| this.hasState("get")) {// ['','get','got']
+                    // this.render();//auto has get state
+                    return ;
+                }
                 
                 this.addState("get");//会在render后变成got
                 
@@ -4623,6 +4628,9 @@ define(
             // me.onshow2 = me.onshow;
             me.on('onshow',function(event){
 
+                //check if the layer is loaded
+                me.render();
+                
 
                 //这里的逻辑可能比较难以理解
                 //其实非常简单，当是layergroup的时候，layer.in，【不会】不会在layerStack中存储，而是替换，保持layergroup仅有一个layer在stack中
@@ -4724,11 +4732,8 @@ define(
                 this.removeState("got");
             }
 
-            // 判断是否render了,autoload的会自动render，否则不会
-            if (!this.hasState("got") && !this.hasState("get")) {// ['','get','got']
-                this.render();//auto has get state
-            }
-
+            this.render();//auto has get state
+            
             // this.fire("changeUrl",this.id);
             
             //判断是否页面中已经存在，如果不存在，则插入到container中,_init 时，已经插入过了
@@ -4756,14 +4761,23 @@ define(
             layerin = $(this.main);
             layerinContext = this;
 
+
             if ( this.myGroup ) {
                 var group = this.myGroup;
                 if (!this.myGroup.isActive()){
                     layerin = $(group.main);
                     layerinContext = group;
                 }
-                layerout = $(group.__layers[group.activeId].main);
-                layeroutContext = group.__layers[group.activeId];
+                //当 id layerout === layerin 的时侯，不转
+                if ( group.activeId === layerinContext.id ) {
+                    console.log('group.activeId is already activity,no need to slide out '+group.activeId);
+                    // return;
+                    layerout = $();
+                }else{
+                    layerout = $(group.__layers[group.activeId].main);
+                    layeroutContext = group.__layers[group.activeId];
+                }
+                
             }else{
                 layerout = blend.activeLayer;
                 layeroutContext = blend.get(layerout.attr("data-blend-id"));
@@ -5344,7 +5358,13 @@ define('src/web/LayerGroup.js',['require','./blend','../common/lib','./WebContro
                 me.layers[i].id = lib.getUniqueID();
             }
             if (me.layers[i].active) {
-                activeId = me.layers[i].id;
+                if (activeId) {
+                    console.log("active id:"+activeId+" is already defined.. ignore the coming active ones:"+me.layers[i].id);
+                    delete me.layers[i].active;
+                }else{
+                    activeId = me.layers[i].id;
+                }
+                
             }
 
             me.layers[i].index = i;//

@@ -115,7 +115,13 @@ define(function(require) {
                 me.layers[i].id = lib.getUniqueID();
             }
             if (me.layers[i].active) {
-                activeId = me.layers[i].id;
+                if (activeId) {
+                    console.log("active id:"+activeId+" is already defined.. ignore the coming active ones:"+me.layers[i].id);
+                    delete me.layers[i].active;
+                }else{
+                    activeId = me.layers[i].id;
+                }
+                
             }
 
             me.layers[i].index = i;//

@@ -23,7 +23,7 @@ module.exports = function (grunt) {
                     include : [
                       'src/web/main'
                     ],
-                    out: 'dist/BlendWebUI.js',
+                    out: 'dist/blendwebui.js',
                     optimize : 'none',
                     wrap : true
                 }
@@ -56,8 +56,8 @@ module.exports = function (grunt) {
                 }]
             },
             web: {
-                src : ['dist/BlendWebUI.js'],
-                dest : 'dist/BlendWebUI.min.js'
+                src : ['dist/blendwebui.js'],
+                dest : 'dist/blendwebui.min.js'
             }
         },
         qunit: {
@@ -72,9 +72,9 @@ module.exports = function (grunt) {
         copy: {
           main: {
             files: [
-              // {expand: true, src: ['dist/BlendWebUI.js'], dest: '../MobileH5/Trunk/elongfront/lib/'},
-              {expand: false, src: ['dist/BlendWebUI.js'], dest: '../MobileH5/Trunk/elongfront/lib/BlendWebUI.js'},
-              {expand: false, src: ['dist/BlendWebUI.min.js'], dest: '../MobileH5/Trunk/elongfront/lib/BlendWebUI.min.js'},
+              // {expand: true, src: ['dist/blendwebui.js'], dest: '../MobileH5/Trunk/elongfront/lib/'},
+              {expand: false, src: ['dist/blendwebui.js'], dest: '../MobileH5/Trunk/elongfront/public/js/blendwebui.js'},
+              {expand: false, src: ['dist/blendwebui.min.js'], dest: '../MobileH5/Trunk/elongfront/public/js/blendwebui.min.js'},
             ],
           },
         },
