@@ -205,7 +205,7 @@ define(function(require) {
         $(this.main).css({top:me.top, left: me.left, right: me.right, bottom: me.bottom});
 
         if (isAndroid) {
-            $(this.main).css({"height":$("body").outerHeight()-(me.top + me.bottom) ,"width":$("body").outerWidth()+(me.left + me.right) });
+            $(this.main).css({"height":$("body").height()-(me.top + me.bottom) ,"width":$("body").width()+(me.left + me.right) });
         }else{
             $(this.main).css({"height":'calc(100% - '+(me.top + me.bottom) +'px)',"width":'calc(100% - '+(me.left + me.right) +'px)'});
         }
