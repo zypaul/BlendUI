@@ -311,7 +311,7 @@ define(
                 return ;
             }
 
-            if (options && options.url && options.url !== this.url) {
+            if (options && options.url && decodeURI(options.url) !== decodeURI(this.url)) {
                 console.log("layer url changed to..." + options.url);
                 this.setUrl(options.url);// = options.url;
                 this.removeState("got");
