@@ -3872,12 +3872,12 @@ define(
             
             //1. set position
             if (dom !== context.main) {//dom is not absolute context.main, then append dom to context.main;
-
                 context.main.appendChild(dom);
             }
-            $(context.main).css({top:options.top, left: options.left, right: options.right, bottom: options.bottom});
-            $(context.main).css({"height":'calc(100% - '+(options.top + options.bottom) +'px)',"width":'calc(100% - '+(options.left + options.right) +'px)'});
-            
+            var contextjQ = $(context.main);
+            contextjQ.css({top:options.top, left: options.left, right: options.right, bottom: options.bottom});
+            contextjQ.css({"height":'calc(100% - '+(options.top + options.bottom) +'px)',"width":'calc(100% - '+(options.left + options.right) +'px)'});
+            // contextjQ.html('');//清空功能html,不需要清空，因为可能已经有了预加载的header
             context.startLoading();
 
             $.ajax({
@@ -3888,8 +3888,16 @@ define(
                     // console.log("--------",data);
                     //hybird版本的web页面是带有页头和页尾的，所以，需要进行.page筛选。
                     //data html 预处理
-                    if (data.indexOf('<html') !== -1) {
+                    if ( data.indexOf('<html') !== -1 ) {
+                        if ( data.indexOf("<title") !== -1 ){
+                            var title = data.substring(data.indexOf("<title"),data.indexOf("</title>"));
+                            if (title){
+                                // document.title = title.replace(/<title[^>]*>/,"");//更新title
+                                contextjQ.attr("data-title",title.replace(/<title[^>]*>/,""));
+                            }
+                        }
                         
+
                         var data2 = $(".page",data);
                         //HACK 所有的group要去掉.bar 
                         if (context.myGroup) {
