@@ -204,11 +204,16 @@ define(function(require) {
         
         $(this.main).css({top:me.top, left: me.left, right: me.right, bottom: me.bottom});
 
-        if (isAndroid) {
-            $(this.main).css({"height":$("body").height()-(me.top + me.bottom) ,"width":$("body").width()+(me.left + me.right) });
-        }else{
+        if (me.top || me.bottom){
             $(this.main).css({"height":'calc(100% - '+(me.top + me.bottom) +'px)',"width":'calc(100% - '+(me.left + me.right) +'px)'});
+            if ($(this.main).css("height").indexOf("calc") === -1 ) {//设置失败
+                $(this.main).css({"height":$("body").height()-(me.top + me.bottom) ,"width":$("body").width()+(me.left + me.right) });
+                $(window).resize(function(){
+                    $(me.main).css({"height":$("body").height()-(me.top + me.bottom) ,"width":$("body").width()+(me.left + me.right) });
+                });
+            }
         }
+        
         //top的处理，由于渲染有bug，top的
 
         for (var id in this._layers) {

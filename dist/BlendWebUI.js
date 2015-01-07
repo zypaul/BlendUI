@@ -3876,10 +3876,27 @@ define(
             }
             var contextjQ = $(context.main);
             contextjQ.css({top:options.top, left: options.left, right: options.right, bottom: options.bottom});
-            contextjQ.css({"height":'calc(100% - '+(options.top + options.bottom) +'px)',"width":'calc(100% - '+(options.left + options.right) +'px)'});
+            if (options.top || options.bottom){
+                contextjQ.css({"height":'calc(100% - '+(options.top + options.bottom) +'px)',"width":'calc(100% - '+(options.left + options.right) +'px)'});
+                if ($contextjQ.css("height").indexOf("calc") === -1 ) {//设置失败
+                    $contextjQ.css({"height":$("body").height()-(options.top + options.bottom) ,"width":$("body").width()+(options.left + options.right) });
+                    $(window).resize(function(){
+                        contextjQ.css({"height":$("body").height()-(options.top + options.bottom) ,"width":$("body").width()+(options.left + options.right) });
+                    });
+                }
+            }
             // contextjQ.html('');//清空功能html,不需要清空，因为可能已经有了预加载的header
             context.startLoading();
 
+            var renderData = function(data){
+                if ( $(".page-content",dom).hasClass("pull-to-refresh-content") ) {//下拉刷新,保持动画
+                    var showhtml = $("<div>").html(data).find(".page-content").html() || data;
+                    $(".page-content",dom).html(showhtml);
+                }else{
+                    dom.innerHTML = data;
+                }
+                context.fire('onrender');
+            };
             $.ajax({
                 url: options.url,
                 type: 'get',
@@ -3911,12 +3928,12 @@ define(
                     //动画中渲染页面会有bug发生，所以需要等待页面动画完成后进行渲染操作
                     if (context.hasState("slidein") ) {
                         context.once("onshow",function(){
-                            dom.innerHTML = data;
-                            context.fire('onrender');
+                            renderData(data);
+                            
                         });
                     }else{
-                        dom.innerHTML = data;
-                        context.fire('onrender');
+                        renderData(data);
+                        
                     }
                     
                    
@@ -4549,6 +4566,7 @@ define(
                 blend.ready(function(){
                     me.fire('onrender');
                 });
+                options.main.setAttribute("data-title",document.title);
             }
             
             //监听事件
@@ -5002,6 +5020,8 @@ define(
             };
             //TODO IT 
             // this.fire("changeUrl");
+
+            this.isRender(false);
                     
             layerApi.prepare(this.id , obj, this);
 
@@ -5450,11 +5470,16 @@ define('src/web/LayerGroup.js',['require','./blend','../common/lib','./WebContro
         
         $(this.main).css({top:me.top, left: me.left, right: me.right, bottom: me.bottom});
 
-        if (isAndroid) {
-            $(this.main).css({"height":$("body").height()-(me.top + me.bottom) ,"width":$("body").width()+(me.left + me.right) });
-        }else{
+        if (me.top || me.bottom){
             $(this.main).css({"height":'calc(100% - '+(me.top + me.bottom) +'px)',"width":'calc(100% - '+(me.left + me.right) +'px)'});
+            if ($(this.main).css("height").indexOf("calc") === -1 ) {//设置失败
+                $(this.main).css({"height":$("body").height()-(me.top + me.bottom) ,"width":$("body").width()+(me.left + me.right) });
+                $(window).resize(function(){
+                    $(me.main).css({"height":$("body").height()-(me.top + me.bottom) ,"width":$("body").width()+(me.left + me.right) });
+                });
+            }
         }
+        
         //top的处理，由于渲染有bug，top的
 
         for (var id in this._layers) {

@@ -131,6 +131,7 @@ define(
                 blend.ready(function(){
                     me.fire('onrender');
                 });
+                options.main.setAttribute("data-title",document.title);
             }
             
             //监听事件
@@ -584,6 +585,8 @@ define(
             };
             //TODO IT 
             // this.fire("changeUrl");
+
+            this.isRender(false);
                     
             layerApi.prepare(this.id , obj, this);
 
