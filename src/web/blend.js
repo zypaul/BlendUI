@@ -63,7 +63,7 @@ define(["require",'./../common/lib',"./configs","./events",'../../usecase/js/lib
                 callback && callback.call(blend.get(layerId),blend.get(layerId).main);
             }
         };
-        document.addEventListener("onrender",function(eve){
+        $(document).on("onrender",function(eve){
             if (eve.detail && cbs[eve.detail]) {
                 //native 无法传递 layer 对象，所以无法使用 this
                 cbs[eve.detail].call(blend.get(eve.detail),blend.get(eve.detail).main);
@@ -79,7 +79,7 @@ define(["require",'./../common/lib',"./configs","./events",'../../usecase/js/lib
             if (/complete|loaded|interactive/.test(document.readyState) && document.body) 
                 cb();
             else 
-                document.addEventListener('DOMContentLoaded', function(){ cb(); }, false);
+                $(document).on('DOMContentLoaded', function(){ cb(); }, false);
         };
         blend.ready(function(){
             events.fire("blendready");
