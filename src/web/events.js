@@ -67,7 +67,7 @@ define(
                 }else{
                     var cb = function() {
                         callback.apply(context, arguments);
-                        context.off(type, cb);
+                        $(context).off(type, cb);
                     };
                     $(context).on(type, cb);
                 }
