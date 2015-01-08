@@ -725,7 +725,7 @@ define(
                     // context = this.main;
                     context = Blend.ui.get(argAry).main;
                 }
-                if (typeof CustomEvent !== 'undefined') {
+                if (typeof CustomEvent === 'function') {
                     var opt = {
                         bubbles: true,
                         cancelable: true,
