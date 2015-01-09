@@ -248,7 +248,7 @@ define(
                     }
                 } else {
                     refresh = false;
-                    return false;
+                    return ;
                 }
             };
             pullEvents.handleTouchEnd = function(e) {

@@ -38,7 +38,7 @@ define(
             //事件on
 
             if (typeof callback === 'function') {
-                $(context).on(type, callback);
+                context.addEventListener(type, callback);
             }
       
         };
@@ -67,9 +67,9 @@ define(
                 }else{
                     var cb = function() {
                         callback.apply(context, arguments);
-                        $(context).off(type, cb);
+                        context.removeEventListener(type, cb);
                     };
-                    $(context).on(type, cb);
+                    context.addEventListener(type, cb);
                 }
             }
 
@@ -87,7 +87,7 @@ define(
             //事件off
 
             if (typeof callback === 'function') {
-                $(context).off(type, callback);
+                context.removeEventListener(type, callback);
             }
         };
 
