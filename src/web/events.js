@@ -112,20 +112,18 @@ define(
                     // context = this.main;
                     context = Blend.ui.get(argAry).main;
                 }
+                var opt = {
+                    bubbles: true,
+                    cancelable: true,
+                    detail: argAry
+                };
                 if (typeof CustomEvent === 'function') {
-                    var opt = {
-                        bubbles: true,
-                        cancelable: true,
-                        detail: argAry
-                    };
                     e = new CustomEvent(type, opt);
-                    console.log(type, opt);
                 } else {
-                    e = document.createEvent('CustomEvent');
-                    e.initCustomEvent(type, true, true, argAry);
+                    e = document.createEvent('Events');
+                    e.initEvent(type, opt.bubbles, opt.cancelable, opt.detail);
+                    e.detail = opt.detail;//兼容uc浏览器
                 }
-
-                
                 
                 if (typeof message !== 'undefined') {
                     e.data = message;
@@ -147,10 +145,8 @@ define(
                 
 
                 if (context) {
-                    // e.srcElement = context;//修改无效
-                    (context).dispatchEvent(e);
+                    context.dispatchEvent(e);
                 }
-
 
             } catch (ex) {
                 console.warn('Events fire errors.please check the runtime environment.', ex.stack);
