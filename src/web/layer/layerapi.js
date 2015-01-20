@@ -101,7 +101,7 @@ define(
             }else{
                 container = document.body.firstElementChild;//.pages 
             }
-            console.log("resume...."+context.main.id);
+            console.log("resume...."+context.id);
             if (!$('#'+ context.main.id).length) {
                     // console.log("resume. in..."+context.main.id);
                 // $(context.main).appendTo(container);//这里居然有bug。。。 zepto！！！！

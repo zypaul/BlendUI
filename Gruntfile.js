@@ -69,15 +69,6 @@ module.exports = function (grunt) {
               }
             }
         },
-        copy: {
-          main: {
-            files: [
-              // {expand: true, src: ['dist/blendwebui.js'], dest: '../MobileH5/Trunk/elongfront/lib/'},
-              {expand: false, src: ['dist/blendwebui.js'], dest: '../MobileH5/Trunk/elongfront/public/js/blendwebui.js'},
-              {expand: false, src: ['dist/blendwebui.min.js'], dest: '../MobileH5/Trunk/elongfront/public/js/blendwebui.min.js'},
-            ],
-          },
-        },
         watch: {
           scripts: {
             files: ['Gruntfile.js','src/web/**/*.js','src/hybrid/**/*.js'],
@@ -94,7 +85,6 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.loadNpmTasks('grunt-contrib-qunit');
     grunt.loadNpmTasks('grunt-contrib-watch');
-    grunt.loadNpmTasks('grunt-contrib-copy');
 
     grunt.registerTask('hybrid', [
         'jshint',
@@ -105,7 +95,6 @@ module.exports = function (grunt) {
         'jshint',
         'requirejs:web',
         'uglify:web',
-        'copy',
         
         // 'uglify:web'
     ]);
