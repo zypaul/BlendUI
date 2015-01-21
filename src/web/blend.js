@@ -83,14 +83,13 @@ define(["require",'./../common/lib',"./configs","./events",'../../usecase/js/lib
         };
         blend.ready(function(){
             events.fire("blendready");
+            /**
+             * 当前的active apge 记录到blend中
+             *
+             * @property {Object} activeLayer
+             */
+            blend.activeLayer = $('.page');
         });
-
-        /**
-         * 当前的active apge 记录到blend中
-         *
-         * @property {Object} activeLayer
-         */
-        blend.activeLayer = $('.page');
 
 
         /**
